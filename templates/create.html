@@ -1,0 +1,24 @@
+<!--create-->
+
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Добавление записи посещения</title>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Добавление записи посещения</h1>
+    <form method="post">
+        <br> <input type="text" class="form-control" name="fio" id="fio" placeholder="Введите ФИО"><br>
+
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="coming_or_leave" name="coming_or_leave" value="coming_or_leave">
+            <label class="form-check-label" for="coming_or_leave">Пришел</label>
+        </div><br>
+
+        <button class="btn btn-success" type="submit">Добавить запись</button>
+
+    </form>
+</div>
+{% endblock %}
