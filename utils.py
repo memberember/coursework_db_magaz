@@ -1,5 +1,5 @@
 
-
+# функция получения строкового типа пользователя по id
 def get_user_type(user_type):
     if user_type == "Администратор":
         return 0
