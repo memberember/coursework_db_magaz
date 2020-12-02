@@ -83,6 +83,7 @@ def index():
                                # ,data=items
                                )
 
+
 # страница пользователей
 @app.route('/users')
 def users():
@@ -149,5 +150,5 @@ def create():
 
 if __name__ == "__main__":
     app.run(debug=True,
-            # host='0.0.0.0'
+            host='0.0.0.0'
             )
