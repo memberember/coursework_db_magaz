@@ -83,6 +83,7 @@ def index():
                                # ,data=items
                                )
 
+
 # страница пользователей
 @app.route('/users')
 def users():
