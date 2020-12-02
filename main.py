@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, json, redirect
 from flask_sqlalchemy import SQLAlchemy
-from sqlighter import SQLighter
 
 # подключаем фласк и sqlalchemy для работы с бд
 app = Flask(__name__)
