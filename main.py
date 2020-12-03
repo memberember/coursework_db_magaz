@@ -21,7 +21,7 @@ class Users(db.Model):
     fio = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
-        return f'{self.id}'
+        return f'{self.id} {self.fio} {self.type}'
 
 
 # модель БД "Направления"
@@ -128,26 +128,136 @@ def about():
     return render_template('about.html')
 
 
-# страница Создания
-@app.route('/create', methods=['POST', 'GET'])
-def create():
-    # if request.method == "POST":
-    #     fio = request.form['fio']
-    #     coming_or_leave = False
-    #     print(request.form)
-    #     if request.form.get('coming_or_leave') != None:
-    #         coming_or_leave = True
-    #
-    #     visit = Visit_list(fio=fio, coming_or_leave=coming_or_leave)
-    #     try:
-    #         db.session.add(visit)
-    #         db.session.commit()
-    #         return redirect('/')
-    #     except:
-    #         return 'Получилась ошибка'
-    # else:
-    #     return render_template('create.html')
-    return render_template('create.html')
+# страница создания пользователя
+@app.route('/createUser', methods=['POST', 'GET'])
+def create_user():
+    # проверка запроса
+    if request.method == "POST":
+
+        # считывание данных с формы
+        login = request.form["login"]
+        password = request.form["password"]
+        fio = request.form["fio"]
+        type = request.form["type"]
+
+        # создание объекта User
+        user = Users(login=login, password=password, fio=fio, type=type)
+
+        # подключение к базе данных и добавления пользователя
+        try:
+            db.session.add(user)
+            db.session.commit()
+            return redirect('/users')
+        except:
+            return 'Получилась ошибка'
+    else:
+        return render_template('createUser.html')
+    return render_template('createUser.html')
+
+
+# страница создания факультета
+@app.route('/createFaculty', methods=['POST', 'GET'])
+def create_faculty():
+    # проверка запроса
+    if request.method == "POST":
+
+        # считывание данных с формы
+        name = request.form["name"]
+
+        # создание объекта Faculty
+        faculty = Faculty(name=name)
+
+        # подключение к базе данных и добавления факультета
+        try:
+            db.session.add(faculty)
+            db.session.commit()
+            return redirect('/faculties')
+        except:
+            return 'Получилась ошибка'
+    else:
+        return render_template('createFaculty.html')
+    return render_template('createFaculty.html')
+
+
+# страница создания дисциплины
+@app.route('/createDiscipline', methods=['POST', 'GET'])
+def create_discipline():
+    teachers = Users.query.filter_by(type=2).order_by(Users.id).all()
+
+    # проверка запроса
+    if request.method == "POST":
+
+        # считывание данных с формы
+        name = request.form["name"]
+        teacher_id = request.form["teacher_id"]
+
+        # создание объекта Faculty
+        discipline = Discipline(name=name, teacher_id=teacher_id)
+
+        # подключение к базе данных и добавления дисциплины
+        try:
+            db.session.add(discipline)
+            db.session.commit()
+            return redirect('/faculties')
+        except:
+            return 'Получилась ошибка'
+    else:
+        return render_template('createDiscipline.html', data=teachers)
+    return render_template('createDiscipline.html', data=teachers)
+
+
+# страница создания кафедры
+@app.route('/createDepartment', methods=['POST', 'GET'])
+def create_department():
+    faculty_list = Faculty.query.order_by(Faculty.id).all()
+
+    # проверка запроса
+    if request.method == "POST":
+
+        # считывание данных с формы
+        name = request.form["name"]
+        faculty_id = request.form["faculty_id"]
+
+        # создание объекта Faculty
+        department = Department(name=name, faculty_id=faculty_id)
+
+        # подключение к базе данных и добавление кафедры
+        try:
+            db.session.add(department)
+            db.session.commit()
+            return redirect('/departments')
+        except:
+            return 'Получилась ошибка'
+    else:
+        return render_template('createDepartment.html', data=faculty_list)
+    return render_template('createDepartment.html', data=faculty_list)
+
+
+# страница создания факультета
+@app.route('/createDegreeProgramm', methods=['POST', 'GET'])
+def create_degree_programm():
+    faculty_list = Faculty.query.order_by(Faculty.id).all()
+
+    # проверка запроса
+    if request.method == "POST":
+
+        # считывание данных с формы
+        name = request.form["name"]
+        faculty_id = request.form["faculty_id"]
+
+        # создание объекта Faculty
+        degree_programm = DegreeProgramm(name=name, faculty_id=faculty_id)
+
+        # подключение к базе данных и добавление направления
+        try:
+            db.session.add(degree_programm)
+            db.session.commit()
+            return redirect('/degree_programms')
+        except:
+            return 'Получилась ошибка'
+    else:
+        return render_template('createDegreeProgramm.html', data=faculty_list)
+    return render_template('createDegreeProgramm.html', data=faculty_list)
 
 
 if __name__ == "__main__":
