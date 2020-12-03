@@ -7,6 +7,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///moodleDB'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+
 # инициализируем соединение с БД
 # dblite = SQLighter('moodleDB')
 
@@ -65,42 +66,44 @@ class Discipline(db.Model):
 # главная страница
 @app.route('/')
 def index():
-    # if request.method == "POST":
-    #     email = request.form['inputEmail']
-    #     password = request.form['inputPassword']
-    #
-    #     # костыль
-    #     items = dblite.get_user_auth(login=email, password=password)
-    #     if len(items) != 0:
-    #         print(email, password, items[0])
-    #         return redirect('users')
-    #     else:
-    #         print("Такого юзера нету")
-    #         return 'Получилась ошибка'
-    # else:
-        return render_template('auth.html'
-                               # ,data=items
-                               )
+    return render_template('auth.html'
+                           # ,data=items
+                           )
 
 
 # страница пользователей
 @app.route('/users')
 def users():
     items = Users.query.order_by(Users.id).all()
-    # print(items[0].fio)
-    # if request.method == "POST":
-    #     user_id = request.form['user_id']
-    #     user_type = ut.get_user_type(request.form['user_type'])
-    #     fio = request.form['fio']
-    #     print(user_id, fio, user_type)
-    #
-    #     user = Users.query.get(user_id)
-    #     user.fio = fio
-    #     user.type = user_type
-    #     db.session.add(user)
-    #     db.session.commit()
-    #
     return render_template('users.html', data=items)
+
+
+# страница направлений
+@app.route('/degree_programms')
+def degree_programms():
+    items = DegreeProgramm.query.order_by(DegreeProgramm.id).all()
+    return render_template('degreeProgramms.html', data=items)
+
+
+# страница кафедр
+@app.route('/departments')
+def departments():
+    items = Department.query.order_by(Department.id).all()
+    return render_template('departments.html', data=items)
+
+
+# страница факультетов
+@app.route('/faculties')
+def faculties():
+    items = Faculty.query.order_by(Faculty.id).all()
+    return render_template('faculties.html', data=items)
+
+
+# страница дисциплин
+@app.route('/disciplines')
+def disciplines():
+    items = Discipline.query.order_by(Discipline.id).all()
+    return render_template('disciplines.html', data=items)
 
 
 # адрес для ajax запроса
