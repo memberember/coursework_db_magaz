@@ -12,9 +12,8 @@
 <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
     <h5 class="my-0 mr-md-auto font-weight-normal">РГЗ РВП Система moodle</h5>
     <nav class="my-2 my-md-0 mr-md-3">
-        <a class="p-2 text-dark" href="/">Авторизация</a>
-        <a class="p-2 text-dark" href="/about">О нас</a>
-
+        <a class="p-2 text-dark">{{ data.fio }} ({{ data.type }})</a>
+        <a class="p-2 text-dark" href="{{ url_for('logout') }}">Выйти</a>
     </nav>
     {#  <a class="btn btn-outline-primary" href="/create">Добавить новое посещение</a>#}
 </div>
@@ -41,11 +40,11 @@
         <div class="col-6 col-md">
             <h5>Списки</h5>
             <ul class="list-unstyled text-small">
-                <li><a class="text-muted" href="/users">Пользователей</a></li>
-                <li><a class="text-muted" href="/faculties">Факультетов</a></li>
-                <li><a class="text-muted" href="/departments">Кафедр</a></li>
-                <li><a class="text-muted" href="/disciplines">Дисциплин</a></li>
-                <li><a class="text-muted" href="/degree_programms">Направлений</a></li>
+                <li><a class="text-muted" href='{{ url_for('users') }}'>Пользователей</a></li>
+                <li><a class="text-muted" href="{{ url_for('faculties') }}">Факультетов</a></li>
+                <li><a class="text-muted" href="{{ url_for('departments') }}">Кафедр</a></li>
+                <li><a class="text-muted" href="{{ url_for('disciplines') }}">Дисциплин</a></li>
+                <li><a class="text-muted" href="{{ url_for('degree_programms') }}">Направлений</a></li>
             </ul>
         </div>
         <div class="col-6 col-md">
