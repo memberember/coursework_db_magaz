@@ -127,9 +127,7 @@ def process():
 @app.route('/about')
 @login_required
 def about():
-    current = current_user
-    current.type = get_user_type(current_user.type)
-    return render_template('about.html', data=current)
+    return render_template('about.html')
 
 
 # страница создания пользователя

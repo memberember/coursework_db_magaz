@@ -12,10 +12,21 @@
 <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
     <h5 class="my-0 mr-md-auto font-weight-normal">РГЗ РВП Система moodle</h5>
     <nav class="my-2 my-md-0 mr-md-3">
-        <a class="p-2 text-dark">{{ data.fio }} ({{ data.type }})</a>
+
+        {#ФИО пользователя и его тип#}
+        <a class="p-2 text-dark">{{ current_user.fio }} (
+            {% if current_user.type == 0 %}
+                Администратор
+            {% elif current_user.type == 1 %}
+                Преподаватель
+            {% elif current_user.type == 2 %}
+                Студент
+            {% else %}
+                Посетитель
+            {% endif %})</a>
         <a class="p-2 text-dark" href="{{ url_for('logout') }}">Выйти</a>
+
     </nav>
-    {#  <a class="btn btn-outline-primary" href="/create">Добавить новое посещение</a>#}
 </div>
 
 {% block body %}{% endblock %}
