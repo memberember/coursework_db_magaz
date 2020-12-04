@@ -33,6 +33,7 @@ def register():
     login = request.form.get('inputEmail')
     password = request.form.get('inputPassword')
     password2 = request.form.get('inputPassword2')
+    fio = request.form.get('fio')
 
     if request.method == 'POST':
         if not (login or password or password2):
@@ -41,7 +42,7 @@ def register():
             flash('Passwords are not equal!')
         else:
             hash_pwd = generate_password_hash(password)
-            new_user = User(login=login, password=hash_pwd, type=2)
+            new_user = User(login=login, password=hash_pwd, type=2, fio=fio)
             db.session.add(new_user)
             db.session.commit()
 
