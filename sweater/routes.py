@@ -85,7 +85,6 @@ def profile():
     # запрос в бд на получение пользователя с id текущего пользователя
     user = User.query.get(current_user.id)
 
-
     if request.method == 'POST':
 
         # если не меняли пароль
@@ -124,7 +123,7 @@ def users():
 def degree_programms():
     items = DegreeProgramm.query.order_by(DegreeProgramm.id).all()
     for it in items:
-        it.faculty_id=Faculty.query.get(it.faculty_id).name
+        it.faculty_id = Faculty.query.get(it.faculty_id).name
     return render_template('degreeProgramms.html', data=items)
 
 
@@ -134,7 +133,7 @@ def degree_programms():
 def departments():
     items = Department.query.order_by(Department.id).all()
     for it in items:
-        it.faculty_id=Faculty.query.get(it.faculty_id).name
+        it.faculty_id = Faculty.query.get(it.faculty_id).name
     return render_template('departments.html', data=items)
 
 

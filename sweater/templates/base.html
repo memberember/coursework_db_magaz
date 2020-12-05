@@ -24,6 +24,11 @@
         {% endif %})</a>
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
+            <a class="nav-link" href="{{ url_for('about') }}">О системе</a>
+        </li>
+    </ul>
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
             <a class="nav-link" href="{{ url_for('logout') }}">Выйти</a>
         </li>
     </ul>
@@ -193,9 +198,25 @@
                 <div style="position:absolute;width:200%;height:200%;left:0; top:0"></div>
             </div>
         </div>
+
+        {% if current_user.type == 0 %}
+            {% block admin %}
+            {% endblock %}
+        {% elif current_user.type == 1 %}
+            {% block teacher %}
+            {% endblock %}
+        {% elif current_user.type == 2 %}
+            {% block student %}
+            {% endblock %}
+        {% endif %}
+
+
+        {% if current_user.type != 0%}
+            {% block user %}
+            {% endblock %}
+        {% endif %}
+
         {% block body %}
-
-
         {% endblock %}
     </main>
 </div>
