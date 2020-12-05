@@ -7,7 +7,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///moodleDB'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-
 # инициализируем соединение с БД
 # dblite = SQLighter('moodleDB')
 
@@ -63,14 +62,6 @@ class Discipline(db.Model):
         return f'{self.id} {self.teacher_id} {self.name}'
 
 
-@app.route('/alish')
-def alish():
-    data = Users.query.order_by(Users.id).all()
-    return render_template('users.html'
-                            ,data = data
-                           )
-
-
 # главная страница
 @app.route('/')
 def index():
@@ -87,9 +78,9 @@ def index():
     #         print("Такого юзера нету")
     #         return 'Получилась ошибка'
     # else:
-    return render_template('auth.html'
-                           # ,data=items
-                           )
+        return render_template('auth.html'
+                               # ,data=items
+                               )
 
 
 # страница пользователей

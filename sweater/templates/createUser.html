@@ -1,0 +1,67 @@
+<!--create-->
+
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Добавление пользователя</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Добавление пользователя</h1>
+        <form method="post">
+            <form class="needs-validation" novalidate>
+
+                {#Логин#}
+                <div class="form-col">
+                    <div class="col-md-4 mb-2">
+                        <label for="validationCustom03">Логин</label>
+                        <input name="login" type="text" class="form-control" id="validationCustom03" placeholder="Введите логин"
+                               required>
+                        <div class="invalid-feedback">
+                            Please provide a valid login.
+                        </div>
+                    </div>
+
+                    {#Пароль#}
+                    <div class="col-md-4 mb-3">
+                        <label for="validationCustom04">Пароль</label>
+                        <input name="password" type="text" class="form-control" id="validationCustom04"
+                               placeholder="Введите пароль" required>
+                        <div class="invalid-feedback">
+                            Please provide a valid password.
+                        </div>
+                    </div>
+
+                    {#ФИО#}
+                    <div class="col-md-4 mb-3">
+                        <label for="validationCustom05">ФИО</label>
+                        <input name="fio" type="text" class="form-control" id="validationCustom05" placeholder="Введите ФИО"
+                               required>
+                        <div class="invalid-feedback">
+                            Please provide a valid zip.
+                        </div>
+                    </div>
+
+                    {#Тип пользователя#}
+                    <div class="col-md-4 mb-3">
+                        <label for="validationCustom05">Тип пользователя</label>
+                        <select class="custom-select" id="type" name="type">
+                            <option value="0">Администратор</option>
+                            <option value="1">Преподаватель</option>
+                            <option selected value="2">Студент</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-success" type="submit">Добавить</button>
+                </div>
+
+            </form>
+
+        </form>
+    </div>
+
+{% endblock %}

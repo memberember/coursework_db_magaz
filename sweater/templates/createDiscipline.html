@@ -1,0 +1,48 @@
+<!--create-->
+
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Добавление дисциплины</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Добавление дисциплины</h1>
+        <form method="post">
+            <form class="needs-validation" novalidate>
+
+                {#Дисциплина#}
+                <div class="form-col">
+                    <div class="col-md-4 mb-2">
+                        <label for="validationCustom03">Название дисциплины</label>
+                        <input name="name" type="text" class="form-control" id="validationCustom03"
+                               placeholder="Введите название дисциплины"
+                               required>
+                        <div class="invalid-feedback">
+                            Please provide a valid faculty name.
+                        </div>
+                    </div>
+                </div>
+
+                {#Преподаватель#}
+                <div class="col-md-4 mb-3">
+                    <label for="validationCustom05">Преподаватель</label>
+                    <select required class="custom-select" id="teacher_id" name="teacher_id">
+                        {% for el in data %}
+                            <option value='{{ el.id }}'>{{ el.fio }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {#Кнопка#}
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-success" type="submit">Добавить</button>
+                </div>
+
+            </form>
+
+        </form>
+    </div>
+
+{% endblock %}
