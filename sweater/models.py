@@ -32,7 +32,7 @@ class Department(db.Model):
     name = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
-        return f'{self.id} {self.faculty_id} {self.name}'
+        return f'\nid = {self.id}\tfaculty_id={self.faculty_id} name={self.name}'
 
 
 # модель БД "Факультет"
