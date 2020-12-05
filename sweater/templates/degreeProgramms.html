@@ -41,7 +41,6 @@
             <th>#</th>
             <th>Имя пользователя</th>
             <th>Тип пользователя</th>
-            <th>Пароль</th>
             <th>Редактирование</th>
         </tr>
         </thead>
@@ -56,17 +55,24 @@
                 <td>{{ el.id }}</td>
                 <input type="hidden" name="user_id" id="user_id" value='{{ el.id }}' id="minput"/>
                 <td><input type="text" class="form-control" name="fio" id="fio" placeholder="Введите ФИО"
-                           value='{{ el.login }}'>
-                </td>
-                <td><input type="text" class="form-control" name="fio" id="password" placeholder="Введите ФИО"
-                           value='{{ el.password }}'>
+                           value='{{ el.fio }}'>
                 </td>
                 <td>
                     <div class="form-group">
                         <select name="user_type" id="user_type" class="form-control">
+                            {% if el.type==0 %}
                             <option selected>Администратор</option>
                             <option>Преподаватель</option>
                             <option>Студент</option>
+                            {% elif el.type==1%}
+                            <option>Администратор</option>
+                            <option selected>Преподаватель</option>
+                            <option>Студент</option>
+                            {% else %}
+                            <option>Администратор</option>
+                            <option>Преподаватель</option>
+                            <option selected>Студент</option>
+                            {% endif %}
                         </select></div>
                 </td>
                 <td>
