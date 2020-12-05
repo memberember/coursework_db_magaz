@@ -14,7 +14,7 @@
     <nav class="my-2 my-md-0 mr-md-3">
 
         {#ФИО пользователя и его тип#}
-        <a class="p-2 text-dark">{{ current_user.fio }} (
+        <a class="p-2 text-dark" href="{{ url_for('profile') }}">{{ current_user.fio }} (
             {% if current_user.type == 0 %}
                 Администратор
             {% elif current_user.type == 1 %}

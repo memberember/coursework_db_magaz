@@ -2,8 +2,8 @@ from flask import render_template, request, json, redirect, flash, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from sweater.models import User, Department, Discipline, DegreeProgramm, Faculty
 from sweater import app, db
+from sweater.models import User, Department, Discipline, DegreeProgramm, Faculty
 from sweater.utils import get_user_type
 
 
@@ -66,6 +66,48 @@ def index():
                            )
 
 
+# страница "О нас"
+@app.route('/about')
+@login_required
+def about():
+    return render_template('about.html')
+
+
+# страница "О нас"
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    # инициализация данных
+    password = request.form.get('inputPassword')
+    password2 = request.form.get('inputPassword2')
+    fio = request.form.get('fio')
+    user = User.query.get(current_user.id)
+    print(request.form)
+
+    if request.method == 'POST':
+
+        # если не меняли пароль
+        if not (password or password2):
+            print("password or password2")
+            user.fio = fio
+            flash(('s', 'Сохранено'))
+
+        # если пароли тоже изменились но не совпадают
+        elif password != password2:
+            print("password != password2")
+            flash(('e', 'Пароли не совпадают!'))
+
+        # если сменили пароль
+        else:
+            user.fio = fio
+            hash_pwd = generate_password_hash(password)
+            user.password = hash_pwd
+            flash(('s', 'Сохранено'))
+    db.session.add(user)
+    db.session.commit()
+    return render_template('profile.html')
+
+
 # страница пользователей
 @app.route('/users')
 @login_required
@@ -121,13 +163,6 @@ def process():
     # user.l = 'ww@gmail.com'
     # # db.session.add(user)
     # # db.session.commit()
-
-
-# страница "О нас"
-@app.route('/about')
-@login_required
-def about():
-    return render_template('about.html')
 
 
 # страница создания пользователя

@@ -1,0 +1,81 @@
+<!--about-->
+
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Профиль</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="col-md-8 order-md-1">
+            <h4 class="mb-3">Данные пользователя</h4>
+            <form class="needs-validation" novalidate="" method="post">
+                <div class="mb-3">
+                    <div>
+                        <label for="fio">ФИО</label>
+                        <input type="text" class="form-control" id="fio" name="fio" placeholder=""
+                               value="{{ current_user.fio }}" required="">
+                        <div class="invalid-feedback">
+                            Valid first name is required.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="username">Логин пользователя (Email)</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">@</span>
+                        </div>
+                        <input type="text" class="form-control" id="username" placeholder="Username" required=""
+                               disabled="disabled" value="{{ current_user.login }}">
+                        <div class="invalid-feedback" style="width: 100%;">
+                            Your username is required.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="inputPassword">Новый пароль</label>
+                        <input type="text" class="form-control" id="inputPassword" name="inputPassword" placeholder=""
+                               value="" required="">
+                        <div class="invalid-feedback">
+                            Valid first name is required.
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="inputPassword2">Повторите новый пароль</label>
+                        <input type="text" class="form-control" id="inputPassword2" name="inputPassword2" placeholder=""
+                               value="" required="">
+                        <div class="invalid-feedback">
+                            Valid last name is required.
+                        </div>
+                    </div>
+                </div>
+
+
+                <button class="btn btn-primary btn-lg btn-block" type="submit">Сохранить</button>
+
+                {#флеш сообщение#}
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message[0]=='e' %}
+                                <div class="alert alert-danger text-center" role="alert">
+                                    {{ message[1] }}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success text-center" role="alert">
+                                    {{ message[1] }}
+                                </div>
+                            {% endif %}
+
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </form>
+        </div>
+    </div>
+{% endblock %}
