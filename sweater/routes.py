@@ -1,10 +1,10 @@
-from flask import render_template, request, json, redirect, flash, url_for
+from flask import render_template, request, json, redirect, flash, url_for, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from sweater import app, db
 from sweater.models import User, Department, Discipline, DegreeProgramm, Faculty
-from sweater.utils import get_user_type
+from sweater.utils import get_user_type_int
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -153,51 +153,6 @@ def disciplines():
     return render_template('disciplines.html', data=items)
 
 
-# адрес для ajax запроса
-@app.route('/process', methods=['GET', 'POST'])
-@login_required
-def process():
-    if len(request.form) > 0:
-        print("request1 ", request.form)
-        fio = request.form['fio'];
-        print("process", fio)
-        return json.dumps({'len': len(fio)})
-    return 'Error'
-
-    # user = Users.query.get(id)
-    # user.l = 'ww@gmail.com'
-    # # db.session.add(user)
-    # # db.session.commit()
-
-
-# страница создания пользователя
-@app.route('/createUser', methods=['POST', 'GET'])
-@login_required
-def create_user():
-    # проверка запроса
-    if request.method == "POST":
-
-        # считывание данных с формы
-        login = request.form["login"]
-        password = request.form["password"]
-        fio = request.form["fio"]
-        type = request.form["type"]
-
-        # создание объекта User
-        user = User(login=login, password=password, fio=fio, type=type)
-
-        # подключение к базе данных и добавления пользователя
-        try:
-            db.session.add(user)
-            db.session.commit()
-            return redirect('/users')
-        except:
-            return 'Получилась ошибка'
-    else:
-        return render_template('createUser.html')
-    return render_template('createUser.html')
-
-
 # страница создания факультета
 @app.route('/createFaculty', methods=['POST', 'GET'])
 @login_required
@@ -307,6 +262,70 @@ def create_degree_programm():
     return render_template('createDegreeProgramm.html', data=faculty_list)
 
 
+# адрес для ajax запроса изменения пользователя
+@app.route('/editUser', methods=['POST'])
+def edit_user_ajax():
+    fio = request.form.get('fio')
+    user_id = request.form.get('user_id')
+    user_type = get_user_type_int(request.form.get('user_type'))
+    try:
+        user = User.query.get(user_id)
+        user.fio = fio
+        user.type = user_type
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'success': f'Успешно сохранен: {user.fio}'})
+    except:
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса удаления пользователя
+@app.route('/deleteUser', methods=['POST'])
+def delete_user_ajax():
+    user_id = request.form.get('user_id')
+    fio = request.form.get('fio')
+
+    try:
+        User.query.filter(User.id == user_id).delete()
+        db.session.commit()
+        return jsonify({'success': f'Успешно удален: {fio}'})
+    except:
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса добавления пользователя
+@app.route('/addUser', methods=['POST'])
+def add_user_ajax():
+    # вытаскиваем данные с полученной формы
+    login = request.form.get('login')
+    password = request.form.get('password')
+    fio = request.form.get('fio')
+    user_type = request.form.get('user_type')
+
+    # хешируем пароль
+    hash_pwd = generate_password_hash(password)
+
+    # проверка заполненности полей
+    if not (login and password and fio):
+        return jsonify({'error': 'Все поля должны быть заполнены'})
+
+    # отловщик ошибок
+    try:
+
+        # создание объекта User
+        user = User(login=login, password=hash_pwd, fio=fio, type=user_type)
+        user.fio = fio
+        user.type = user_type
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'success': f'Успешно добавлен: {fio}'})
+
+    # если поймалась ошибка, то выполняется этот блок
+    except:
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# перенаправление на логин при неавторизованном пользователе
 @app.after_request
 def redirect_to_signin(response):
     if response.status_code == 401:

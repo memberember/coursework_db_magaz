@@ -3,33 +3,128 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    <title>Посещение студентов общежития</title>
-    <script type=text/javascript src="{{ url_for('static', filename='js/jquery-2.2.2.min.js') }}"></script>
-{% endblock %}
-<script>
-    function process(form) {
-        $.ajax({
-            type: "POST",
-            url: "/process",
-            data: $(form).serialize(),
-            type: 'POST',
-            success: function (response) {
-                var json = jQuery.parseJSON(response)
-                $('#len').html(json.len)
+    <title>Список пользователей системы</title>
+    <script>
+        function edit_user(form) {
+            $.ajax(
+                {
+                    data: $(form).serialize(),
+                    type: 'POST',
+                    url: '/editUser'
+                })
+                .done(function (data) {
 
-                console.log(response);
-            },
-            error: function (error) {
-                console.log(error);
-            }
-        });
-    }
-</script>
+                    if (data.error) {
+                        $('#errorAlert').text(data.error).show();
+                        $('#successAlert').hide();
+                    } else {
+                        $('#successAlert').text(data.success).show();
+                        $('#errorAlert').hide();
+                    }
+
+                });
+            event.preventDefault();
+        }
+
+        function delete_user(form) {
+            $.ajax(
+                {
+                    data: $(form).serialize(),
+                    type: 'POST',
+                    url: '/deleteUser'
+                })
+                .done(function (data) {
+                    console.log('#' + form.id)
+
+                    if (data.error) {
+                        $('#errorAlert').text(data.error).show();
+                        $('#successAlert').hide();
+                    } else {
+                        $('#successAlert').text(data.success).show();
+                        $('#tr' + form.id).hide();
+                        $('#errorAlert').hide();
+                    }
+
+                });
+            event.preventDefault();
+        }
+
+
+        function add_user(form) {
+            $.ajax(
+                {
+                    data: $(form).serialize(),
+                    type: 'POST',
+                    url: '/addUser'
+                })
+                .done(function (data) {
+                    console.log('#' + form.id)
+
+                    if (data.error) {
+                        $('#errorAlert').text(data.error).show();
+                        $('#successAlert').hide();
+                    } else {
+                        $('#successAlert').text(data.success).show();
+                        $('#errorAlert').hide();
+                    }
+
+                });
+            event.preventDefault();
+        }
+
+
+    </script>
+{% endblock %}
+
+
 
 {#Контент администратора#}
 {% block admin %}
-
+    <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+    <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
     <div class="container">
+
+        <table class="table table-sm">
+            <form>
+                <h3>Режим работы с пользователями</h3><br>
+                <h6>Новый пользователь</h6>
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" name="login" id="login"
+                               placeholder="Введите email"
+                               value=''>
+                    </td>
+                    <td><input type="text" class="form-control" name="password" id="password"
+                               placeholder="Введите пароль"
+                               value=''>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="form-control" name="fio" id="fio" placeholder="Введите ФИО"
+                               value=''>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <select name="user_type" id="user_type" class="form-control">
+                                <option value="0">Администратор</option>
+                                <option value="1">Преподаватель</option>
+                                <option value="2" selected>Студент</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+
+                    <td colspan="2">
+                        {#Кнопки редактирования#}
+                        <button class="btn btn-lg btn-primary btn-block" onclick="add_user(this.form);">Добавить
+                        </button>
+                    </td>
+                </tr>
+            </form>
+        </table>
+
+
         <table class="table table-striped table-sm">
             <thead>
 
@@ -45,8 +140,8 @@
 
             {#Содержимое таблицы#}
             {% for el in data %}
-                <tr>
-                    <form action="/process" method='post' name='form{{ el.id }}'>
+                <tr id='tr{{ el.id }}'>
+                    <form id='{{ el.id }}'>
                         <td>{{ el.id }}</td>
                         <input type="hidden" name="user_id" id="user_id" value='{{ el.id }}' id="minput"/>
                         <td><input type="text" class="form-control" name="fio" id="fio" placeholder="Введите ФИО"
@@ -68,13 +163,15 @@
                                         <option>Преподаватель</option>
                                         <option selected>Студент</option>
                                     {% endif %}
-                                </select></div>
+                                </select>
+                            </div>
                         </td>
                         <td>
 
                             {#Кнопки редактирования#}
-                            <button type="button" class="btn btn-danger">Удалить</button>
-                            <button class="btn btn-success" onclick="process();">Сохранить</button>
+                            <button type="button" class="btn btn-danger" onclick="delete_user(this.form)">Удалить
+                            </button>
+                            <button class="btn btn-success" onclick="edit_user(this.form);">Сохранить</button>
                         </td>
                     </form>
                 </tr>
@@ -92,7 +189,7 @@
         <table class="table table-striped table-sm">
             <thead>
 
-            {#Заголовки таблицы#}
+            Заголовки таблицы
             <tr>
                 <th>#</th>
                 <th>Имя пользователя</th>
@@ -102,7 +199,7 @@
             <tbody>
             {% for el in data %}
                 <tr>
-                    <form action="/process" method='post' name='form{{ el.id }}'>
+                    <form id='form{{ el.id }}'>
                         <td>{{ el.id }}</td>
                         <td>
                             {{ el.fio }}
