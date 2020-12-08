@@ -3,11 +3,11 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from sweater import app, db
-from sweater.models import User, Department, Discipline, DegreeProgramm, Faculty
+from sweater.models import User, Department, Discipline, DegreeProgramm, Faculty, Student, Group, Teacher
 from sweater.utils import get_user_type_int
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login_page():
     login = request.form.get('inputEmail')
     password = request.form.get('inputPassword')
@@ -55,15 +55,6 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('login_page'))
-
-
-# главная страница
-@login_required
-@app.route('/')
-def index():
-    return render_template('login_page.html'
-                           # ,data=items
-                           )
 
 
 # страница "О нас"
