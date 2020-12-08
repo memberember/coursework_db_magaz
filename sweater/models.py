@@ -54,6 +54,45 @@ class Discipline(db.Model):
         return f'{self.id} {self.teacher_id} {self.name}'
 
 
+# модель БД "Студент"
+class Student(db.Model):
+    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=True)
+
+    # чтобы это заработало, нужно указать какой из ключей выше является внешним ключем
+    userData = db.relationship('User', backref='student', uselist=False)
+    group = db.relationship('Group', backref='student', uselist=False)
+
+    def __repr__(self):
+        return f'{self.id}'
+
+
+# модель БД "Группы"
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    degree_programm_id = db.Column(db.Integer, db.ForeignKey('degree_programm.id'))
+    name = db.Column(db.String(255), nullable=True)
+
+    # чтобы это заработало, нужно указать какой из ключей выше является внешним ключем
+    degreeProgramm = db.relationship('DegreeProgramm', backref='group', uselist=False)
+
+    def __repr__(self):
+        return f'{self.id} {self.name}'
+
+
+# модель БД "Учителя"
+class Teacher(db.Model):
+    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    department_id = db.Column(db.Integer, db.ForeignKey('department.id'))
+
+    # чтобы это заработало, нужно указать какой из ключей выше является внешним ключем
+    department = db.relationship('Department', backref='teacher', uselist=False)
+    userData = db.relationship('User', backref='teacher', uselist=False)
+
+    def __repr__(self):
+        return f'{self.id}'
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
