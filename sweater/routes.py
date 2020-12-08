@@ -123,6 +123,8 @@ def degree_programms():
 @login_required
 def departments():
     items = Department.query.order_by(Department.id).all()
+
+    # todo костыль, переделать в моделях через внешний ключ
     for it in items:
         it.faculty_id = Faculty.query.get(it.faculty_id).name
     return render_template('departments.html', data=items)
