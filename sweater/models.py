@@ -48,7 +48,9 @@ class Faculty(db.Model):
 class Discipline(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=True)
-    teacher_id = db.Column(db.Integer, nullable=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable=True)
+
+    teacher = db.relationship('Teacher', backref='discipline', uselist=False)
 
     def __repr__(self):
         return f'{self.id} {self.teacher_id} {self.name}'
@@ -72,6 +74,7 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     degree_programm_id = db.Column(db.Integer, db.ForeignKey('degree_programm.id'))
     name = db.Column(db.String(255), nullable=True)
+    disciplines = db.Column(db.String, nullable=True)
 
     # чтобы это заработало, нужно указать какой из ключей выше является внешним ключем
     degreeProgramm = db.relationship('DegreeProgramm', backref='group', uselist=False)

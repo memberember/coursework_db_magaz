@@ -68,6 +68,37 @@ def about():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+
+    # если преподаватель то выполняется следующий участок кода
+    if current_user.type == 1:
+
+        # вытаскиваем текущего преподавателя
+        teacher = Teacher.query.get(current_user.id)
+        disciplines = Discipline.query.filter_by(teacher_id=teacher.id).all()
+
+        # пакуем все в словарь из двух переменных
+        data = {
+            'teacher': teacher,
+            'disciplines': disciplines
+        }
+
+    # если студент, то выполняется следующий участок кода
+    if current_user.type == 2:
+
+        # вытаскиваем текущего студента
+        student = Student.query.get(current_user.id)
+        disciplines = []
+
+        # вытаскиваем его дисциплины
+        for discipline_id in str(student.group.disciplines).split(' '):
+            disciplines.append(Discipline.query.get(discipline_id))
+
+        # пакуем все в словарь из двух переменных
+        data = {
+            'student': student,
+            'disciplines': disciplines
+        }
+
     # инициализация данных
     password = request.form.get('inputPassword')
     password2 = request.form.get('inputPassword2')
@@ -97,7 +128,7 @@ def profile():
             flash(('s', 'Сохранено'))
     db.session.add(user)
     db.session.commit()
-    return render_template('profile.html')
+    return render_template('profile.html', data=data)
 
 
 # страница пользователей

@@ -194,6 +194,9 @@
             </div>
         </div>
 
+        {% block body %}
+        {% endblock %}
+
         {% if current_user.type == 0 %}
             {% block admin %}
             {% endblock %}
@@ -211,8 +214,6 @@
             {% endblock %}
         {% endif %}
 
-        {% block body %}
-        {% endblock %}
     </main>
 </div>
 </body>
