@@ -3,89 +3,90 @@
 {% extends 'base.html' %}
 
 {% block title %}
-<title>Посещение студентов общежития</title>
+<title>Список кафедр</title>
 <script type=text/javascript src="{{ url_for('static', filename='js/jquery-2.2.2.min.js') }}"></script>
 {% endblock %}
 
-{% block body %}
-<script>
-    function process(form) {
-        $.ajax({
-            type: "POST",
-            url: "/process",
-            data: $(form).serialize(),
-            type: 'POST',
-            success: function (response) {
-                var json = jQuery.parseJSON(response)
-                $('#len').html(json.len)
-
-                console.log(response);
-            },
-            error: function (error) {
-                console.log(error);
-            }
-        });
-    }
-</script>
-
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">Список пользователей</h1>
-    <!--    <p class="lead">Зеленым цветом выделено посещение, красным уход студента из общежития</p>-->
-</div>
-
-<div class="container">
-
-    <table class="table table-striped table-sm">
-        <thead>
-        <tr>
-            <th>#</th>
-            <th>Имя пользователя</th>
-            <th>Тип пользователя</th>
-            <th>Редактирование</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        <div id="len">0</div>
-
-        {% for el in data %}
-
-        <tr>
-            <form action="/process" method='post' name='form{{ el.id }}'>
-                <td>{{ el.id }}</td>
-                <input type="hidden" name="user_id" id="user_id" value='{{ el.id }}' id="minput"/>
-                <td><input type="text" class="form-control" name="fio" id="fio" placeholder="Введите ФИО"
-                           value='{{ el.fio }}'>
-                </td>
-                <td>
-                    <div class="form-group">
-                        <select name="user_type" id="user_type" class="form-control">
-                            {% if el.type==0 %}
-                            <option selected>Администратор</option>
-                            <option>Преподаватель</option>
-                            <option>Студент</option>
-                            {% elif el.type==1%}
-                            <option>Администратор</option>
-                            <option selected>Преподаватель</option>
-                            <option>Студент</option>
-                            {% else %}
-                            <option>Администратор</option>
-                            <option>Преподаватель</option>
-                            <option selected>Студент</option>
-                            {% endif %}
-                        </select></div>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-danger">Удалить</button>
-                    <button class="btn btn-success" onclick="process();">Сохранить</button>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
-
-        </tbody>
-    </table>
-</div>
+{#Контент администратора#}
+{% block admin %}
+    <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+    <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+    <div class="container">
+        <h1 align="center">Список кафедр</h1>
 
 
+
+        <table class="table table-striped table-sm">
+            <thead>
+
+            {#Заголовки таблицы#}
+            <tr>
+                <th>#</th>
+                <th>Наименование факультета</th>
+                <th>Наименование кафедры</th>
+                <th>Редактирование</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {#Содержимое таблицы#}
+            {% for el in data %}
+                <tr id='tr{{ el.id }}'>
+                    <form id='{{ el.id }}'>
+                        <td>{{ el.id }}</td>
+                        <input type="hidden" name="faculty_id" id="faculty_id" value='{{ el.id }}' id="minput"/>
+                        <td><input type="text" class="form-control" name="fio" id="fio" placeholder="Введите наименование факультета"
+                                   value='{{ el.faculty_id }}'>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="name" id="name" placeholder="Введите наименование кафедры"
+                                   value='{{ el.name }}'>
+                        </td>
+
+                        <td>
+                            {#Кнопки редактирования#}
+                            <button type="button" class="btn btn-danger" onclick="delete_user(this.form)">Удалить
+                            </button>
+                            <button class="btn btn-success" onclick="edit_user(this.form);">Сохранить</button>
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
+{#Контент учителя и студента#}
+{% block user %}
+    <div class="container">
+        <h1 align="center">Список кафедр</h1>
+        <table class="table table-striped table-sm">
+            <thead>
+            {#Заголовки таблицы#}
+            <tr>
+                <th>#</th>
+                <th>Наименование факультета</th>
+                <th>Наименование кафедры</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for el in data %}
+                <tr>
+                    <form id='form{{ el.id }}'>
+                        <td>{{ el.id }}</td>
+                        <td>
+                            {{ el.faculty_id }}
+                        </td>
+                        <td>
+                            {{ el.name }}
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+
