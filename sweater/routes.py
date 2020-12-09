@@ -68,10 +68,10 @@ def about():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    data = {}
 
     # если преподаватель то выполняется следующий участок кода
     if current_user.type == 1:
-
         # вытаскиваем текущего преподавателя
         teacher = Teacher.query.get(current_user.id)
         disciplines = Discipline.query.filter_by(teacher_id=teacher.id).all()
@@ -84,6 +84,7 @@ def profile():
 
     # если студент, то выполняется следующий участок кода
     if current_user.type == 2:
+
 
         # вытаскиваем текущего студента
         student = Student.query.get(current_user.id)
