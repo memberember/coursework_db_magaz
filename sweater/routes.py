@@ -292,11 +292,9 @@ def create_degree_programm():
 def edit_user_ajax():
     fio = request.form.get('fio')
     user_id = request.form.get('user_id')
-    user_type = get_user_type_int(request.form.get('user_type'))
     try:
         user = User.query.get(user_id)
         user.fio = fio
-        user.type = user_type
         db.session.add(user)
         db.session.commit()
         return jsonify({'success': f'Успешно сохранен: {user.fio}'})
