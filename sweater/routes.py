@@ -85,7 +85,6 @@ def profile():
     # если студент, то выполняется следующий участок кода
     if current_user.type == 2:
 
-
         # вытаскиваем текущего студента
         student = Student.query.get(current_user.id)
         disciplines = []
@@ -154,12 +153,31 @@ def degree_programms():
 @app.route('/departments')
 @login_required
 def departments():
-    items = Department.query.order_by(Department.id).all()
+    # вытаскиваем список кафедр для отображения
+    departments = Department.query.order_by(Department.faculty_id).all()
 
-    # todo костыль, переделать в моделях через внешний ключ
-    for it in items:
-        it.faculty_id = Faculty.query.get(it.faculty_id).name
-    return render_template('departments.html', data=items)
+    divided = []
+
+    # вытаскиваем список факультетов для меню выбора при добавлении
+    faculties = Faculty.query.all()
+
+    # делим список кафедр на списки из факультетов и их кафедр
+    for it in faculties:
+        department_list = []
+        for department in departments:
+            if department.faculty_id == it.id:
+                department_list.append(department)
+        divided.append({
+            'faculty': it,
+            'departments': department_list
+        })
+
+    data = {
+        'departments': divided,
+        'faculties': faculties
+    }
+
+    return render_template('departments.html', data=data)
 
 
 # страница факультетов
@@ -176,115 +194,6 @@ def faculties():
 def disciplines():
     items = Discipline.query.order_by(Discipline.id).all()
     return render_template('disciplines.html', data=items)
-
-
-# страница создания факультета
-@app.route('/createFaculty', methods=['POST', 'GET'])
-@login_required
-def create_faculty():
-    # проверка запроса
-    if request.method == "POST":
-
-        # считывание данных с формы
-        name = request.form["name"]
-
-        # создание объекта Faculty
-        faculty = Faculty(name=name)
-
-        # подключение к базе данных и добавления факультета
-        try:
-            db.session.add(faculty)
-            db.session.commit()
-            return redirect('/faculties')
-        except:
-            return 'Получилась ошибка'
-    else:
-        return render_template('createFaculty.html')
-    return render_template('createFaculty.html')
-
-
-# страница создания дисциплины
-@app.route('/createDiscipline', methods=['POST', 'GET'])
-@login_required
-def create_discipline():
-    teachers = User.query.filter_by(type=2).order_by(User.id).all()
-
-    # проверка запроса
-    if request.method == "POST":
-
-        # считывание данных с формы
-        name = request.form["name"]
-        teacher_id = request.form["teacher_id"]
-
-        # создание объекта Faculty
-        discipline = Discipline(name=name, teacher_id=teacher_id)
-
-        # подключение к базе данных и добавления дисциплины
-        try:
-            db.session.add(discipline)
-            db.session.commit()
-            return redirect('/faculties')
-        except:
-            return 'Получилась ошибка'
-    else:
-        return render_template('createDiscipline.html', data=teachers)
-    return render_template('createDiscipline.html', data=teachers)
-
-
-# страница создания кафедры
-@app.route('/createDepartment', methods=['POST', 'GET'])
-@login_required
-def create_department():
-    faculty_list = Faculty.query.order_by(Faculty.id).all()
-
-    # проверка запроса
-    if request.method == "POST":
-
-        # считывание данных с формы
-        name = request.form["name"]
-        faculty_id = request.form["faculty_id"]
-
-        # создание объекта Faculty
-        department = Department(name=name, faculty_id=faculty_id)
-
-        # подключение к базе данных и добавление кафедры
-        try:
-            db.session.add(department)
-            db.session.commit()
-            return redirect('/departments')
-        except:
-            return 'Получилась ошибка'
-    else:
-        return render_template('createDepartment.html', data=faculty_list)
-    return render_template('createDepartment.html', data=faculty_list)
-
-
-# страница создания факультета
-@app.route('/createDegreeProgramm', methods=['POST', 'GET'])
-@login_required
-def create_degree_programm():
-    faculty_list = Faculty.query.order_by(Faculty.id).all()
-
-    # проверка запроса
-    if request.method == "POST":
-
-        # считывание данных с формы
-        name = request.form["name"]
-        faculty_id = request.form["faculty_id"]
-
-        # создание объекта Faculty
-        degree_programm = DegreeProgramm(name=name, faculty_id=faculty_id)
-
-        # подключение к базе данных и добавление направления
-        try:
-            db.session.add(degree_programm)
-            db.session.commit()
-            return redirect('/degree_programms')
-        except:
-            return 'Получилась ошибка'
-    else:
-        return render_template('createDegreeProgramm.html', data=faculty_list)
-    return render_template('createDegreeProgramm.html', data=faculty_list)
 
 
 # адрес для ajax запроса изменения пользователя
@@ -344,6 +253,118 @@ def add_user_ajax():
         return jsonify({'success': f'Успешно добавлен: {fio}'})
 
     # если поймалась ошибка, то выполняется этот блок
+    except:
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса добавления факультета
+@app.route('/addFaculty', methods=['POST'])
+def add_faculty_ajax():
+    # вытаскиваем данные с полученной формы
+    name = request.form.get('name')
+
+    # проверка заполненности полей
+    if not name:
+        return jsonify({'error': 'Название не должно быть пустым'})
+
+    # отловщик ошибок
+    try:
+
+        # создание объекта User
+        faculty = Faculty(name=name)
+        faculty.name = name
+        db.session.add(faculty)
+        db.session.commit()
+        return jsonify({'success': f'Успешно добавлен: {name}'})
+
+    # если поймалась ошибка, то выполняется этот блок
+    except:
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса удаления факультета
+@app.route('/deleteFaculty', methods=['POST'])
+def delete_faculty_ajax():
+    faculty_id = request.form.get('faculty_id')
+    name = request.form.get('name')
+
+    try:
+        Faculty.query.filter(Faculty.id == faculty_id).delete()
+        db.session.commit()
+        return jsonify({'success': f'Успешно удален: {name}'})
+    except:
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса изменения факультета
+@app.route('/editFaculty', methods=['POST'])
+def edit_faculty_ajax():
+    faculty_id = request.form.get('faculty_id')
+    name = request.form.get('name')
+
+    try:
+        faculty = Faculty.query.get(faculty_id)
+        faculty.name = name
+        db.session.add(faculty)
+        db.session.commit()
+        return jsonify({'success': f'Успешно сохранен: {faculty.name}'})
+    except:
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса добавления кафедры
+@app.route('/addDepartment', methods=['POST'])
+def add_department_ajax():
+    # вытаскиваем данные с полученной формы
+    name = request.form.get('name')
+    faculty_id = request.form.get('faculty_id')
+
+    # проверка заполненности полей
+    if not name:
+        return jsonify({'error': 'Название не должно быть пустым'})
+
+    # отловщик ошибок
+    try:
+
+        # создание объекта User
+        department = Department(name=name)
+        department.name = name
+        department.faculty_id = faculty_id
+        db.session.add(department)
+        db.session.commit()
+        return jsonify({'success': f'Успешно добавлен: {name}'})
+
+    # если поймалась ошибка, то выполняется этот блок
+    except:
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса удаления кафедры
+@app.route('/deleteDepartment', methods=['POST'])
+def delete_department_ajax():
+    department_id = request.form.get('department_id')
+    name = request.form.get('name')
+
+    try:
+        Department.query.filter(Department.id == department_id).delete()
+        db.session.commit()
+        return jsonify({'success': f'Успешно удален: {name}'})
+    except:
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса изменения кафедры
+@app.route('/editDepartment', methods=['POST'])
+def edit_department_ajax():
+    department_id = request.form.get('department_id')
+    name = request.form.get('name')
+
+    try:
+        department = Department.query.get(department_id)
+        department.name = name
+        db.session.add(department)
+        db.session.commit()
+        return jsonify({'success': f'Успешно сохранен: {department.name}'})
     except:
         return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
 

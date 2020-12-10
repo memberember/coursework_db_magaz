@@ -4,76 +4,6 @@
 
 {% block title %}
     <title>Список пользователей системы</title>
-    <script>
-        function edit_user(form) {
-            $.ajax(
-                {
-                    data: $(form).serialize(),
-                    type: 'POST',
-                    url: '/editUser'
-                })
-                .done(function (data) {
-
-                    if (data.error) {
-                        $('#errorAlert').text(data.error).show();
-                        $('#successAlert').hide();
-                    } else {
-                        $('#successAlert').text(data.success).show();
-                        $('#errorAlert').hide();
-                    }
-
-                });
-            event.preventDefault();
-        }
-
-        function delete_user(form) {
-            $.ajax(
-                {
-                    data: $(form).serialize(),
-                    type: 'POST',
-                    url: '/deleteUser'
-                })
-                .done(function (data) {
-                    console.log('#' + form.id)
-
-                    if (data.error) {
-                        $('#errorAlert').text(data.error).show();
-                        $('#successAlert').hide();
-                    } else {
-                        $('#successAlert').text(data.success).show();
-                        $('#tr' + form.id).hide();
-                        $('#errorAlert').hide();
-                    }
-
-                });
-            event.preventDefault();
-        }
-
-
-        function add_user(form) {
-            $.ajax(
-                {
-                    data: $(form).serialize(),
-                    type: 'POST',
-                    url: '/addUser'
-                })
-                .done(function (data) {
-                    console.log('#' + form.id)
-
-                    if (data.error) {
-                        $('#errorAlert').text(data.error).show();
-                        $('#successAlert').hide();
-                    } else {
-                        $('#successAlert').text(data.success).show();
-                        $('#errorAlert').hide();
-                    }
-
-                });
-            event.preventDefault();
-        }
-
-
-    </script>
 {% endblock %}
 
 
@@ -116,8 +46,10 @@
                 <tr>
 
                     <td colspan="2">
+
                         {#Кнопки редактирования#}
-                        <button class="btn btn-lg btn-primary btn-block" onclick="add_user(this.form);">Добавить
+                        <button class="btn btn-lg btn-primary btn-block" onclick="ajax_fun(this.form,'addUser');">
+                            Добавить
                         </button>
                     </td>
                 </tr>
@@ -159,9 +91,11 @@
                         <td>
 
                             {#Кнопки редактирования#}
-                            <button type="button" class="btn btn-danger" onclick="delete_user(this.form)">Удалить
+                            <button type="button" class="btn btn-danger" onclick="ajax_delete(this.form,'deleteUser')">
+                                Удалить
                             </button>
-                            <button class="btn btn-success" onclick="edit_user(this.form);">Сохранить</button>
+                            <button class="btn btn-success" onclick="ajax_fun(this.form,'editUser');">Сохранить
+                            </button>
                         </td>
                     </form>
                 </tr>

@@ -3,17 +3,42 @@
 {% extends 'base.html' %}
 
 {% block title %}
-<title>Список факультетов</title>
-<script type=text/javascript src="{{ url_for('static', filename='js/jquery-2.2.2.min.js') }}"></script>
+    <title>Список факультетов</title>
+    <script type=text/javascript src="{{ url_for('static', filename='js/jquery-2.2.2.min.js') }}"></script>
 {% endblock %}
 
 {#Контент администратора#}
 {% block admin %}
     <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
     <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+
+    <div class="container">
+
+    <table class="table table-sm">
+        <form>
+            <h3>Режим работы с факультетами</h3><br>
+            <h6>Новый факультет</h6>
+            <tr>
+                <td><input type="text" class="form-control" name="name" id="name" placeholder="Введите название"
+                           value=''>
+                </td>
+            </tr>
+            <tr>
+
+                <td colspan="2">
+
+                    {#Кнопки редактирования#}
+                    <button class="btn btn-lg btn-primary btn-block" onclick="ajax_fun(this.form,'addFaculty');">
+                        Добавить
+                    </button>
+                </td>
+            </tr>
+        </form>
+    </table>
+
+
     <div class="container">
         <h1 align="center">Список факультетов</h1>
-
 
 
         <table class="table table-striped table-sm">
@@ -30,27 +55,35 @@
 
             {#Содержимое таблицы#}
             {% for el in data %}
-                <tr id='tr{{ el.id }}'>
-                    <form id='{{ el.id }}'>
-                        <td>{{ el.id }}</td>
-                        <input type="hidden" name="faculty_id" id="faculty_id" value='{{ el.id }}' id="minput"/>
-                        <td><input type="text" class="form-control" name="fio" id="fio" placeholder="Введите наименование факультета"
-                                   value='{{ el.name }}'>
-                        </td>
-                        <td>
-                            {#Кнопки редактирования#}
-                            <button type="button" class="btn btn-danger" onclick="delete_user(this.form)">Удалить
-                            </button>
-                            <button class="btn btn-success" onclick="edit_user(this.form);">Сохранить</button>
-                        </td>
-                    </form>
-                </tr>
+                {% if el.id!=0 %}
+                    <tr id='tr{{ el.id }}'>
+                        <form id='{{ el.id }}'>
+                            <td>{{ el.id }}</td>
+                            <input type="hidden" name="faculty_id" id="faculty_id" value='{{ el.id }}' id="minput"/>
+                            <td><input type="text" class="form-control" name="name" id="name"
+                                       placeholder="Введите наименование факультета"
+                                       value='{{ el.name }}'>
+                            </td>
+                            <td>
+
+                                {#Кнопки редактирования#}
+                                <button type="button" class="btn btn-danger"
+                                        onclick="ajax_delete(this.form,'deleteFaculty')">Удалить
+                                </button>
+                                <button class="btn btn-success" onclick="ajax_fun(this.form,'editFaculty');">Сохранить
+                                </button>
+                            </td>
+                        </form>
+                    </tr>
+                {% endif %}
             {% endfor %}
 
             </tbody>
         </table>
     </div>
 {% endblock %}
+
+
 {#Контент учителя и студента#}
 {% block user %}
     <div class="container">

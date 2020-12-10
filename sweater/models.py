@@ -28,8 +28,10 @@ class DegreeProgramm(db.Model):
 # модель БД "Кафедра"
 class Department(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    faculty_id = db.Column(db.Integer, nullable=True)
+    faculty_id = db.Column(db.Integer, db.ForeignKey('faculty.id'), nullable=True)
     name = db.Column(db.String(255), nullable=True)
+
+    faculty = db.relationship('Faculty', backref='department', uselist=False)
 
     def __repr__(self):
         return f'\nid = {self.id}\tfaculty_id={self.faculty_id} name={self.name}'
