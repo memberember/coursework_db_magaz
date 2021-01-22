@@ -26,26 +26,26 @@
             <tbody>
             {% for el in data %}
                 {% if current_user.id==el.magazinhastovar.magazin.user_id %}
-                <tr>
-                    <form id='form{{ el.id }}'>
-                        <td>{{ el.id }}</td>
-                        <td>
-                            {{ el.time }}
-                        </td>
-                        <td>
-                            {{ el.all_cost }}
-                        </td>
-                        <td>
-                            {{ el.user.fio }}
-                        </td>
-                        <td>
-                            {{ el.magazinhastovar.tovar.name }}
-                        </td>
-                        <td>
-                            {{ el.magazinhastovar.magazin.name }}
-                        </td>
-                    </form>
-                </tr>
+                    <tr>
+                        <form id='form{{ el.id }}'>
+                            <td>{{ el.id }}</td>
+                            <td>
+                                {{ el.time }}
+                            </td>
+                            <td>
+                                {{ el.all_cost }}
+                            </td>
+                            <td>
+                                {{ el.user.fio }}
+                            </td>
+                            <td>
+                                {{ el.magazinhastovar.tovar.name }}
+                            </td>
+                            <td>
+                                {{ el.magazinhastovar.magazin.name }}
+                            </td>
+                        </form>
+                    </tr>
                 {% endif %}
             {% endfor %}
             </tbody>
@@ -66,6 +66,8 @@
                 <th>Время</th>
                 <th>Цена</th>
                 <th>Получатель</th>
+                <th>Адрес</th>
+                <th>Номер</th>
                 <th>Товар</th>
                 <th>Магазин</th>
             </tr>
@@ -73,26 +75,32 @@
             <tbody>
             {% for el in data %}
                 {% if current_user.id==el.user.id %}
-                <tr>
-                    <form id='form{{ el.id }}'>
-                        <td>{{ el.id }}</td>
-                        <td>
-                            {{ el.time }}
-                        </td>
-                        <td>
-                            {{ el.all_cost }}
-                        </td>
-                        <td>
-                            {{ el.user.fio }}
-                        </td>
-                        <td>
-                            {{ el.magazinhastovar.tovar.name }}
-                        </td>
-                        <td>
-                            {{ el.magazinhastovar.magazin.name }}
-                        </td>
-                    </form>
-                </tr>
+                    <tr>
+                        <form id='form{{ el.id }}'>
+                            <td>{{ el.id }}</td>
+                            <td>
+                                {{ el.time }}
+                            </td>
+                            <td>
+                                {{ el.all_cost }}
+                            </td>
+                            <td>
+                                {{ el.user.fio }}
+                            </td>
+                            <td>
+                                {{ el.user.adress }}
+                            </td>
+                            <td>
+                                {{ el.user.phone }}
+                            </td>
+                            <td>
+                                {{ el.magazinhastovar.tovar.name }}
+                            </td>
+                            <td>
+                                {{ el.magazinhastovar.magazin.name }}
+                            </td>
+                        </form>
+                    </tr>
                 {% endif %}
             {% endfor %}
             </tbody>
