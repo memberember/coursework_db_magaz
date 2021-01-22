@@ -39,6 +39,39 @@
                     </div>
                 </div>
 
+                            <div class="mb-3">
+                    <div>
+                        <label for="sex">Пол</label>
+                        <input type="text" class="form-control" id="sex" name="sex" placeholder=""
+                               value="{{ current_user.sex }}" required="">
+                        <div class="invalid-feedback">
+                            Valid first name is required.
+                        </div>
+                    </div>
+                </div>
+
+                            <div class="mb-3">
+                    <div>
+                        <label for="adress">Адрес</label>
+                        <input type="text" class="form-control" id="adress" name="adress" placeholder=""
+                               value="{{ current_user.adress }}" required="">
+                        <div class="invalid-feedback">
+                            Valid first name is required.
+                        </div>
+                    </div>
+                </div>
+
+                            <div class="mb-3">
+                    <div>
+                        <label for="phone">Телефон</label>
+                        <input type="text" class="form-control" id="phone" name="phone" placeholder=""
+                               value="{{ current_user.phone }}" required="">
+                        <div class="invalid-feedback">
+                            Valid first name is required.
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <label for="username">Логин пользователя (Email)</label>
                     <div class="input-group">
@@ -52,6 +85,7 @@
                         </div>
                     </div>
                 </div>
+
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -98,19 +132,19 @@
     {% endblock %}
 
 
-    {% block student %}
+    {% block owner %}
 
     <div class="album py-5 bg-light">
         <div class="container">
-            <h4 class="mb-3">Список дисциплин группы {{data.student.group.name}}  ({{data.student.group.degreeProgramm.name}})</h4></div>
+            <h4 class="mb-3">Список магазины пользователя: {{current_user.fio}} </h4></div>
 
         <div class="container">
 
             <div class="row">
 
-                {% for el in data.disciplines %}
+                {% for el in data %}
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
+                        <a href="magazin/{{ el.id }}" class="card mb-4 shadow-sm">
                             <svg class="bd-placeholder-img card-img-top" width="100%" height="225"
                                  xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"
                                  focusable="false"
@@ -119,41 +153,7 @@
                                 <rect width="100%" height="100%" fill="#{{ range(100000, 999999) | random }}"></rect>
                                 <text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ el.name }}</text>
                             </svg>
-
-                            <div class="card-body">
-                                <p class="card-text">{{ el.teacher.userData.fio }}</p>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-{% endblock %}
-
-
-    {% block teacher %}
-
-    <div class="album py-5 bg-light">
-        <div class="container">
-            <h4 class="mb-3">Список дисциплин преподавателя: {{data.teacher.userData.fio}} </h4></div>
-
-        <div class="container">
-
-            <div class="row">
-
-                {% for el in data.disciplines %}
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <svg class="bd-placeholder-img card-img-top" width="100%" height="225"
-                                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"
-                                 focusable="false"
-                                 role="img" aria-label="Placeholder: Thumbnail">
-                                <title>Placeholder</title>
-                                <rect width="100%" height="100%" fill="#{{ range(100000, 999999) | random }}"></rect>
-                                <text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ el.name }}</text>
-                            </svg>
-                        </div>
+                        </a>
                     </div>
                 {% endfor %}
             </div>

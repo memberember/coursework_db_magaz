@@ -1,0 +1,104 @@
+<!--index-->
+
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Список категорий</title>
+    <script type=text/javascript src="{{ url_for('static', filename='js/jquery-2.2.2.min.js') }}"></script>
+{% endblock %}
+
+{#Контент администратора#}
+{% block admin %}
+    <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+    <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+    <div class="container">
+        <h1 align="center">Список категорий</h1>
+
+        <table class="table table-sm">
+            <form>
+                <h3>Режим работы с категориями</h3><br>
+                <h6>Новая категория</h6>
+
+                {#название новой кафедры#}
+                <td><input type="text" class="form-control" name="name" id="name" placeholder="Название"
+                           value=''>
+                </td>
+                </tr>
+
+                <td colspan="2">
+
+                    {#Кнопки редактирования#}
+                    <button class="btn btn-lg btn-primary btn-block" onclick="ajax_fun(this.form,'addCategory');">
+                        Добавить
+                    </button>
+                </td>
+                </tr>
+            </form>
+        </table>
+
+        <table class="table table-striped table-sm">
+            <thead>
+
+            {#Заголовки таблицы#}
+            <tr>
+                <th>#</th>
+                <th>Наименование</th>
+                <th>Редактирование</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {#Содержимое таблицы#}
+            {% for el in data %}
+                <tr id='tr{{ el.id }}' name='tr{{ el.id }}'>
+                    <form id='{{ el.id }}'>
+                        <td>{{ el.id }}</td>
+                        <input type="hidden" name="category_id" id="category_id" value='{{ el.id }}' id="minput"/>
+                        <td><input type="text" class="form-control" name="category_name" id="category_name"
+                                   placeholder="Введите наименование категории"
+                                   value='{{ el.name }}'>
+                        </td>
+                        <td>
+                            {#Кнопки редактирования#}
+                            <button type="button" class="btn btn-danger"
+                                    onclick="ajax_delete(this.form,'deleteCategory')">Удалить
+                            </button>
+                            <button class="btn btn-success" onclick="ajax_fun(this.form,'editCategory');">Сохранить
+                            </button>
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{#Контент покупателя и Хозяина#}
+{% block user %}
+    <div class="container">
+        <h1 align="center">Список категорий</h1>
+        <table class="table table-striped table-sm">
+            <thead>
+            {#Заголовки таблицы#}
+            <tr>
+                <th>#</th>
+                <th>Наименование</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for el in data %}
+                <tr>
+                    <form id='form{{ el.id }}'>
+                        <td>{{ el.id }}</td>
+                        <td>
+                            <a href="category/{{ el.id }}">{{ el.name }}</a>
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

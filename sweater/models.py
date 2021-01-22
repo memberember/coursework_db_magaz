@@ -10,92 +10,62 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False)
     type = db.Column(db.Integer, nullable=2)
     fio = db.Column(db.String(255), nullable=True)
+    sex = db.Column(db.String(255), nullable=True)
+    adress = db.Column(db.String(255), nullable=True)
+    phone = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
         return f'{self.id} {self.fio} {self.type}'
 
 
-# модель БД "Направления"
-class DegreeProgramm(db.Model):
+# модель БД "Магазины"
+class Magazin(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    faculty_id = db.Column(db.Integer, nullable=True)
-    name = db.Column(db.String(255), nullable=True)
-
-    def __repr__(self):
-        return f'{self.id} {self.faculty_id} {self.name}'
+    name = db.Column(db.String(255), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref='magaz', uselist=False)
 
 
-# модель БД "Кафедра"
-class Department(db.Model):
+# модель БД "Заказы"
+class Zakaz(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    faculty_id = db.Column(db.Integer, db.ForeignKey('faculty.id'), nullable=True)
-    name = db.Column(db.String(255), nullable=True)
+    time = db.Column(db.String(255), nullable=False)
+    all_cost = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    magaztovar_id = db.Column(db.Integer, db.ForeignKey('magazinhastovar.id'), nullable=False)
+    user = db.relationship('User', backref='zakaz', uselist=False)
+    magazinhastovar = db.relationship('Magazinhastovar', backref='zakaz', uselist=False)
 
-    faculty = db.relationship('Faculty', backref='department', uselist=False)
 
-    def __repr__(self):
-        return f'\nid = {self.id}\tfaculty_id={self.faculty_id} name={self.name}'
-
-
-# модель БД "Факультет"
-class Faculty(db.Model):
+# модель БД "Товары"
+class Tovar(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=True)
+    name = db.Column(db.String(255), nullable=False)
+    cvet = db.Column(db.String(255), nullable=False)
+    opisanie = db.Column(db.String(255), nullable=False)
+    strana = db.Column(db.String(255), nullable=False)
+    razmer = db.Column(db.String(255), nullable=False)
+    picture = db.Column(db.String(255), nullable=False)
+    sex = db.Column(db.String(255), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('kategorya.id'), nullable=False)
+    category = db.relationship('Kategorya', backref='tovar', uselist=False)
 
-    def __repr__(self):
-        return f'{self.id} {self.name}'
 
-
-# модель БД "Дисциплина"
-class Discipline(db.Model):
+# модель БД "Категории"
+class Kategorya(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=True)
-    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable=True)
-
-    teacher = db.relationship('Teacher', backref='discipline', uselist=False)
-
-    def __repr__(self):
-        return f'{self.id} {self.teacher_id} {self.name}'
+    name = db.Column(db.String(255), nullable=False)
 
 
-# модель БД "Студент"
-class Student(db.Model):
-    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=True)
-
-    # чтобы это заработало, нужно указать какой из ключей выше является внешним ключем
-    userData = db.relationship('User', backref='student', uselist=False)
-    group = db.relationship('Group', backref='student', uselist=False)
-
-    def __repr__(self):
-        return f'{self.id}'
-
-
-# модель БД "Группы"
-class Group(db.Model):
+# модель БД "Магазин имеет товар"
+class Magazinhastovar(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    degree_programm_id = db.Column(db.Integer, db.ForeignKey('degree_programm.id'))
-    name = db.Column(db.String(255), nullable=True)
-    disciplines = db.Column(db.String, nullable=True)
-
-    # чтобы это заработало, нужно указать какой из ключей выше является внешним ключем
-    degreeProgramm = db.relationship('DegreeProgramm', backref='group', uselist=False)
-
-    def __repr__(self):
-        return f'{self.id} {self.name}'
-
-
-# модель БД "Учителя"
-class Teacher(db.Model):
-    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    department_id = db.Column(db.Integer, db.ForeignKey('department.id'))
-
-    # чтобы это заработало, нужно указать какой из ключей выше является внешним ключем
-    department = db.relationship('Department', backref='teacher', uselist=False)
-    userData = db.relationship('User', backref='teacher', uselist=False)
-
-    def __repr__(self):
-        return f'{self.id}'
+    magazin_id = db.Column(db.Integer, db.ForeignKey('magazin.id'), nullable=False)
+    tovar_id = db.Column(db.Integer, db.ForeignKey('tovar.id'), nullable=False)
+    cost = db.Column(db.Integer, nullable=False)
+    count = db.Column(db.Integer, nullable=False)
+    magazin = db.relationship(Magazin, backref='magazinhastovar', uselist=False)
+    tovar = db.relationship('Tovar', backref='magazinhastovar', uselist=False)
 
 
 @login_manager.user_loader

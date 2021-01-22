@@ -1,0 +1,170 @@
+<!--index-->
+
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Список магазинов</title>
+{% endblock %}
+
+
+
+{#Контент администратора#}
+{% block admin %}
+    <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+    <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+    <div class="container">
+
+        <table class="table table-sm">
+            <form>
+                <h3>Режим работы с магазинами</h3><br>
+                <h6>Новый магазин</h6>
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" name="name" id="name"
+                               placeholder="Введите название"
+                               value=''>
+                    </td>
+                    <td>
+
+                        <div class="form-group">
+                            <select name="user_id" id="user_id" class="form-control">
+                                {% for owner in owners %}
+                                    <option value="{{ owner.id }}">{{ owner.fio }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+
+                    <td colspan="2">
+                        {#Кнопки редактирования#}
+                        <button class="btn btn-lg btn-primary btn-block" onclick="ajax_fun(this.form,'addMagazin');">
+                            Добавить
+                        </button>
+                    </td>
+                </tr>
+            </form>
+        </table>
+
+
+        <table class="table table-striped table-sm">
+            <thead>
+
+            {#Заголовки таблицы#}
+            <tr>
+                <th>#</th>
+                <th>Название</th>
+                <th>Имя Хозяина</th>
+                <th>Редактирование</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {#Содержимое таблицы#}
+            {% for el in data %}
+                <tr name='tr{{ el.id }}' id='tr{{ el.id }}'>
+                    <form id='{{ el.id }}'>
+                        <td>{{ el.id }}</td>
+                        <input type="hidden" name="magaz_id" id="magaz_id" value='{{ el.id }}' id="minput"/>
+                        <td><input type="text" class="form-control" name="magaz_name" id="magaz_name"
+                                   placeholder="Введите название"
+                                   value='{{ el.name }}'>
+                        </td>
+                        <td>
+                            {{ el.user.fio }}
+                        </td>
+                        <td>
+
+                            {#Кнопки редактирования#}
+                            <button type="button" class="btn btn-danger"
+                                    onclick="ajax_delete(this.form,'deleteMagazin')">
+                                Удалить
+                            </button>
+                            <button class="btn btn-success" onclick="ajax_fun(this.form,'editMagazin');">Сохранить
+                            </button>
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+
+{#Контент хозяина#}
+{% block owner %}
+    <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+    <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+    <div class="container">
+
+        <table class="table table-sm">
+            <form>
+                <h3>Режим работы с магазинами</h3><br>
+                <h6>Новый магазин</h6>
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" name="name" id="name"
+                               placeholder="Введите название"
+                               value=''>
+                    </td>
+                    <td>
+
+                        <div class="form-group">
+                            <input type="hidden" name="user_id" id="user_id" value='{{ current_user.id }}' id="minput"/>
+                            <input type="text" class="form-control" id="user_name" required=""
+                                   disabled="disabled" value="{{ current_user.fio }}">
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+
+                    <td colspan="2">
+                        {#Кнопки редактирования#}
+                        <button class="btn btn-lg btn-primary btn-block" onclick="ajax_fun(this.form,'addMagazin');">
+                            Добавить
+                        </button>
+                    </td>
+                </tr>
+            </form>
+        </table>
+    </div>
+{% endblock %}
+
+
+{#Контент хозяина и покупателя#}
+{% block user %}
+    <div class="container">
+        <table class="table table-striped table-sm">
+            <thead>
+
+            {#Заголовки таблицы#}
+            <tr>
+                <th>#</th>
+                <th>Название</th>
+                <th>Имя хозяина</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for el in data %}
+                <tr>
+                    <form id='form{{ el.id }}'>
+                        <td>{{ el.id }}</td>
+                        <td>
+                            <a href="magazin/{{ el.id }}">{{ el.name }}</a>
+                        </td>
+                        <td>
+                            {{ el.user.fio }}
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+

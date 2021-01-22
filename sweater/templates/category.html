@@ -1,0 +1,144 @@
+<!--index-->
+
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Список категорий</title>
+    <script type=text/javascript src="{{ url_for('static', filename='js/jquery-2.2.2.min.js') }}"></script>
+{% endblock %}
+
+
+
+{#Контент покупателя#}
+{% block owner %}
+    <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark">
+        <div class="col-md-6 px-0">
+            <h1 class="display-4 font-italic">{{ category.name }}</h1>
+        </div>
+    </div>
+    <div class="album py-5 bg-light">
+        <div class="container">
+            <h4 class="mb-3">Список товаров: </h4>
+        </div>
+
+        <div class="container">
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+                {% for el in data %}
+                    <div class="col-md-6">
+                        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                            <div class="col p-4 d-flex flex-column position-static">
+   <form id='{{ el.id }}'>
+                                    <strong class="d-inline-block mb-2 text-primary">{{ el.strana }}</strong>
+                                    <h3 class="mb-0">{{ el.name }}</h3>
+                                    <div class="mb-1 text-muted">{{ el.sex }} {{ el.cvet }} {{ el.razmer }}</div>
+                                    <p class="card-text mb-auto">{{ el.opisanie }}</p>
+                                    <p class="card-text mb-auto">Категория: {{ el.category.name }}</p>
+
+                                    <input type="hidden" name="tovar_id" id="tovar_id"
+                                           value='{{ el.id }}'/>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Количество</span>
+                                        <input type="text" name="tovar_count" id="tovar_count"
+                                               class="form-control" value="100">
+                                    </div>
+                                    <div class="input-group">
+
+                                        <span class="input-group-text">Цена</span>
+                                        <input type="text" name="tovar_cost" id="tovar_cost"
+                                               class="form-control" value="100">
+                                    </div>
+                                    <div class="input-group">
+                                        <select name="magazin_id" id="magazin_id" class="form-control">
+
+                                            {% for mag in magazins %}
+                                                <option value="{{ mag.id }}">{{ mag.name }}</option>
+
+                                            {% endfor %}
+                                        </select>
+                                        <button class="btn btn-outline-secondary"
+                                                onclick="ajax_fun(this.form,'forkTovar');"
+                                                type="button" id="button-addon2">
+                                            Форкнуть
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-auto d-none d-lg-block">
+                                <img src="{{ el.picture }}" width="200" height="250">
+
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{#Контент покупателя#}
+{% block buyer %}
+    <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark">
+        <div class="col-md-6 px-0">
+            <h1 class="display-4 font-italic">{{ category.name }}</h1>
+        </div>
+    </div>
+    <div class="album py-5 bg-light">
+        <div class="container">
+            <h4 class="mb-3">Список товаров: </h4>
+        </div>
+
+        <div class="container">
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+                {% for el in data %}
+                    <div class="col-md-6">
+                        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                            <div class="col p-4 d-flex flex-column position-static">
+         <form id='{{ el.id }}'>
+                                    <strong class="d-inline-block mb-2 text-primary">{{ el.strana }}</strong>
+                                    <h3 class="mb-0">{{ el.name }}</h3>
+                                    <div class="mb-1 text-muted">{{ el.sex }} {{ el.cvet }} {{ el.razmer }}</div>
+                                    <p class="card-text mb-auto">{{ el.opisanie }}</p>
+                                    <p class="card-text mb-auto">Категория: {{ el.category.name }}</p>
+                                    <div class="input-group mb-3">
+                                        {#                                    <input type="hidden" name="tovar_id" id="tovar_id" value='{{ el.tovar.id }}'/>#}
+                                        {#                                    <input type="hidden" name="magazin_id" id="magazin_id" value='{{ magaz.id }}'/>#}
+
+                                        <div class="input-group">
+                                            <select name="magazinhastovar_id" id="magazinhastovar_id"
+                                                    class="form-control">
+
+                                                {% for mag in magazinhastovar %}
+                                                    {% if mag.tovar_id == el.id %}
+                                                        <option value="{{ mag.id }}">{{ mag.magazin.name }} {{ mag.cost }}₽</option>
+                                                    {% endif %}
+
+                                                {% endfor %}
+                                            </select>
+
+                                            <button onclick="ajax_fun(this.form,'addOrder');"
+                                                    class="btn btn-outline-secondary" type="button" id="button-addon2">
+                                                Заказать
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-auto d-none d-lg-block">
+                                <img src="{{ el.picture }}" width="200" height="250">
+
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
