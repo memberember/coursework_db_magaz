@@ -571,6 +571,9 @@ def add_order_ajax():
                       )
         db.session.add(zakaz)
         db.session.commit()
+        magazinhastovar.count-=1
+        db.session.add(magazinhastovar)
+        db.session.commit()
         return jsonify({'success': f'Успешно добавлен: {d1}'})
 
     # если поймалась ошибка, то выполняется этот блок
