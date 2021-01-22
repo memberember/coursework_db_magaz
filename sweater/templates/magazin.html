@@ -562,7 +562,7 @@
                                     <div class="input-group mb-3">
                                         {#                                    <input type="hidden" name="tovar_id" id="tovar_id" value='{{ el.tovar.id }}'/>#}
                                         {#                                    <input type="hidden" name="magazin_id" id="magazin_id" value='{{ magaz.id }}'/>#}
-                                        <input type="hidden" name="cost" id="cost" value='{{ el.cost }}'/>
+                                        <input type="hidden" name="magazinhastovar_id" id="magazinhastovar_id" value='{{ el.id }}'/>
 
                                         <button onclick="ajax_fun(this.form,'addOrder');"
                                                 class="btn btn-outline-secondary" type="button" id="button-addon2">
