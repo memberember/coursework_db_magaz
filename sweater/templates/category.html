@@ -115,7 +115,7 @@
 
                                                 {% for mag in magazinhastovar %}
                                                     {% if mag.tovar_id == el.id %}
-                                                        <option value="{{ mag.id }}">{{ mag.magazin.name }} {{ mag.cost }}₽</option>
+                                                        <option value="{{ mag.id }}">{{ mag.magazin.name }} Осталось: {{ mag.count }}шт. {{ mag.cost }}₽ </option>
                                                     {% endif %}
 
                                                 {% endfor %}
