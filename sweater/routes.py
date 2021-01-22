@@ -1,9 +1,32 @@
+import json
+
 from flask import render_template, request, redirect, flash, url_for, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from sweater import app, db
 from sweater.models import User, Zakaz, Magazin, Tovar, Kategorya, Magazinhastovar
+
+from sqlalchemy.ext.declarative import DeclarativeMeta
+
+
+class AlchemyEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj.__class__, DeclarativeMeta):
+            # an SQLAlchemy class
+            fields = {}
+            for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
+                data = obj.__getattribute__(field)
+                try:
+                    json.dumps(data)  # this will fail on non-encodable values, like other classes
+                    fields[field] = data
+                except TypeError:
+                    fields[field] = None
+            # a json-encodable dict
+            return fields
+
+        return json.JSONEncoder.default(self, obj)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -242,7 +265,8 @@ def categoria(id):
     magazinhastovar = Magazinhastovar.query.all()
     magazins = Magazin.query.filter_by(user_id=current_user.id).all()
 
-    return render_template('category.html', data=items, magazins=magazins,category=category, categories=categories, magazinhastovar=magazinhastovar)
+    return render_template('category.html', data=items, magazins=magazins, category=category, categories=categories,
+                           magazinhastovar=magazinhastovar)
 
 
 # страница категорий
@@ -571,7 +595,7 @@ def add_order_ajax():
                       )
         db.session.add(zakaz)
         db.session.commit()
-        magazinhastovar.count-=1
+        magazinhastovar.count -= 1
         db.session.add(magazinhastovar)
         db.session.commit()
         return jsonify({'success': f'Успешно добавлен: {d1}'})
@@ -590,4 +614,3 @@ def redirect_to_signin(response):
 
 # todo
 # сделать список товаров с пагинацией
-# сделать динамическое обновление количества товаров
