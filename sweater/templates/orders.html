@@ -25,6 +25,7 @@
             </thead>
             <tbody>
             {% for el in data %}
+                {% if current_user.id==el.user.id %}
                 <tr>
                     <form id='form{{ el.id }}'>
                         <td>{{ el.id }}</td>
@@ -45,6 +46,7 @@
                         </td>
                     </form>
                 </tr>
+                {% endif %}
             {% endfor %}
             </tbody>
         </table>
