@@ -20,6 +20,9 @@
                 <th>Время</th>
                 <th>Цена</th>
                 <th>Получатель</th>
+
+                <th>Адрес</th>
+                <th>Номер</th>
                 <th>Товар</th>
                 <th>Магазин</th>
             </tr>
@@ -45,6 +48,12 @@
                             </td>
                             <td>
                                 {{ el.user.fio }}
+                            </td>
+                                <td>
+                                {{ el.user.adress }}
+                            </td>
+                            <td>
+                                {{ el.user.phone }}
                             </td>
                             <td>
                                 {{ el.magazinhastovar.tovar.name }}
@@ -143,6 +152,9 @@
                 <th>Время</th>
                 <th>Цена</th>
                 <th>Получатель</th>
+
+                <th>Адрес</th>
+                <th>Номер</th>
                 <th>Товар</th>
                 <th>Магазин</th>
             </tr>
@@ -168,6 +180,12 @@
                         <td>
                             {{ el.user.fio }}
                         </td>
+                           <td>
+                                {{ el.user.adress }}
+                            </td>
+                            <td>
+                                {{ el.user.phone }}
+                            </td>
                         <td>
                             {{ el.magazinhastovar.tovar.name }}
                         </td>
