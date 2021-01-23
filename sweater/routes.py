@@ -436,6 +436,9 @@ def edit_tovar_ajax():
     category_id = request.form.get('category_id')
     cost = request.form.get('cost')
     count = request.form.get('count')
+    magtovar_id = request.form.get('magtovar_id')
+
+
     print(request
           .form)
     try:
@@ -448,9 +451,14 @@ def edit_tovar_ajax():
         tovar.picture = picture
         tovar.sex = sex
         tovar.category_id = category_id
-        tovar.cost = cost
-        tovar.count = count
+
         db.session.add(tovar)
+        db.session.commit()
+        magtovar = Magazinhastovar.query.get(magtovar_id)
+        magtovar.cost = cost
+        magtovar.count = count
+
+        db.session.add(magtovar)
         db.session.commit()
         return jsonify({'success': f'Успешно сохранен: {tovar.name}'})
     except:

@@ -203,6 +203,8 @@
                                 </div>
 
                                 <div class="d-grid gap-2 d-md-block">
+
+
                                     <button type="button" class="btn btn-outline-success"
                                             onclick="ajax_fun(this.form,'editTovar');">Сохранить
                                     </button>
@@ -420,6 +422,8 @@
                                         <label class="form-check-label" for="inlineRadio2">Для женщин</label>
                                     </div>
 
+    <input type="hidden" name="magtovar_id" id="magtovar_id"
+                                       value='{{ el.id }}'/>
 
                                     <div class="d-grid gap-2 d-md-block">
                                         <button type="button" class="btn btn-outline-success"
@@ -562,7 +566,8 @@
                                     <div class="input-group mb-3">
                                         {#                                    <input type="hidden" name="tovar_id" id="tovar_id" value='{{ el.tovar.id }}'/>#}
                                         {#                                    <input type="hidden" name="magazin_id" id="magazin_id" value='{{ magaz.id }}'/>#}
-                                        <input type="hidden" name="magazinhastovar_id" id="magazinhastovar_id" value='{{ el.id }}'/>
+                                        <input type="hidden" name="magazinhastovar_id" id="magazinhastovar_id"
+                                               value='{{ el.id }}'/>
 
                                         <button onclick="ajax_fun(this.form,'addOrder');"
                                                 class="btn btn-outline-secondary" type="button" id="button-addon2">
