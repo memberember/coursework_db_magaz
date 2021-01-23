@@ -29,7 +29,7 @@
                     <div class="col-md-6">
                         <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
                             <div class="col p-4 d-flex flex-column position-static">
-   <form id='{{ el.id }}'>
+                                <form id='{{ el.id }}'>
                                     <strong class="d-inline-block mb-2 text-primary">{{ el.strana }}</strong>
                                     <h3 class="mb-0">{{ el.name }}</h3>
                                     <div class="mb-1 text-muted">{{ el.sex }} {{ el.cvet }} {{ el.razmer }}</div>
@@ -88,13 +88,25 @@
         <div class="col-md-6 px-0">
             <h1 class="display-4 font-italic">{{ category.name }}</h1>
         </div>
+
     </div>
+
     <div class="album py-5 bg-light">
+
         <div class="container">
             <h4 class="mb-3">Список товаров: </h4>
+                    <a href="/category/{{ category.id }}&sorted_by=1" class="btn btn-outline-secondary" type="button"
+           id="button-addon2">
+            Сортировать по возрастанию
+        </a>
+        <a href="/category/{{ category.id }}&sorted_by=0" class="btn btn-outline-secondary" type="button"
+           id="button-addon2">
+            Сортировать по убыванию
+        </a>
         </div>
 
         <div class="container">
+
 
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
@@ -102,7 +114,7 @@
                     <div class="col-md-6">
                         <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
                             <div class="col p-4 d-flex flex-column position-static">
-         <form id='{{ el.id }}'>
+                                <form id='{{ el.id }}'>
                                     <strong class="d-inline-block mb-2 text-primary">{{ el.strana }}</strong>
                                     <h3 class="mb-0">{{ el.name }}</h3>
                                     <div class="mb-1 text-muted">{{ el.sex }} {{ el.cvet }} {{ el.razmer }}</div>
@@ -118,7 +130,9 @@
 
                                                 {% for mag in magazinhastovar %}
                                                     {% if mag.tovar_id == el.id %}
-                                                        <option value="{{ mag.id }}">{{ mag.magazin.name }} Осталось: {{ mag.count }}шт. {{ mag.cost }}₽ </option>
+                                                        <option value="{{ mag.id }}">{{ mag.magazin.name }}
+                                                            Осталось: {{ mag.count }}шт. {{ mag.cost }}₽
+                                                        </option>
                                                     {% endif %}
 
                                                 {% endfor %}

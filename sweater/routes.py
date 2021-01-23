@@ -269,6 +269,23 @@ def categoria(id):
                            magazinhastovar=magazinhastovar)
 
 
+# страница категории
+@app.route('/category/<int:id>&sorted_by=<int:sortedby>')
+@login_required
+def categoria_sorted(id, sortedby):
+    category = Kategorya.query.get(id)
+    items = Tovar.query.filter_by(category_id=id).order_by(Tovar.name.desc()).all()
+    if sortedby == 1:
+        items = Tovar.query.filter_by(category_id=id).order_by(Tovar.name.asc()).all()
+    # items = Tovar.query.filter_by(category_id=id).all()
+    categories = Kategorya.query.order_by(Kategorya.id).all()
+    magazinhastovar = Magazinhastovar.query.all()
+    magazins = Magazin.query.filter_by(user_id=current_user.id).all()
+
+    return render_template('category.html', data=items, magazins=magazins, category=category, categories=categories,
+                           magazinhastovar=magazinhastovar)
+
+
 # страница категорий
 @app.route('/category_list')
 @login_required
@@ -437,7 +454,6 @@ def edit_tovar_ajax():
     cost = request.form.get('cost')
     count = request.form.get('count')
     magtovar_id = request.form.get('magtovar_id')
-
 
     print(request
           .form)
