@@ -436,6 +436,8 @@ def edit_tovar_ajax():
     category_id = request.form.get('category_id')
     cost = request.form.get('cost')
     count = request.form.get('count')
+    print(request
+          .form)
     try:
         tovar = Tovar.query.get(id)
         tovar.name = name
@@ -586,6 +588,8 @@ def add_order_ajax():
     # отловщик ошибок
     magazinhastovar = Magazinhastovar.query.get(magazinhastovar_id)
     try:
+        if magazinhastovar.count - 1 <= -1:
+            return jsonify({'error': 'Товар кончился на складе'})
 
         # создание объекта заказ
         zakaz = Zakaz(all_cost=magazinhastovar.cost,
