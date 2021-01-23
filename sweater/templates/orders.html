@@ -16,6 +16,7 @@
             {#Заголовки таблицы#}
             <tr>
                 <th>#</th>
+                <th>Фото</th>
                 <th>Время</th>
                 <th>Цена</th>
                 <th>Получатель</th>
@@ -29,6 +30,13 @@
                     <tr>
                         <form id='form{{ el.id }}'>
                             <td>{{ el.id }}</td>
+                                <td>
+                                <div class="col-auto d-none d-lg-block">
+                                    <img src="{{ el.magazinhastovar.tovar.picture }}" width="40" height="50">
+
+                                    </svg>
+                                </div>
+                            </td>
                             <td>
                                 {{ el.time }}
                             </td>
@@ -64,6 +72,8 @@
             {#Заголовки таблицы#}
             <tr>
                 <th>#</th>
+                <th>Фото</th>
+
                 <th>Время</th>
                 <th>Цена</th>
                 <th>Получатель</th>
@@ -79,6 +89,14 @@
                     <tr>
                         <form id='form{{ el.id }}'>
                             <td>{{ el.id }}</td>
+                            <td>
+                                <div class="col-auto d-none d-lg-block">
+                                    <img src="{{ el.magazinhastovar.tovar.picture }}" width="40" height="50">
+
+                                    </svg>
+                                </div>
+                            </td>
+
                             <td>
                                 {{ el.time }}
                             </td>
@@ -120,6 +138,8 @@
             {#Заголовки таблицы#}
             <tr>
                 <th>#</th>
+                <th>Фото</th>
+
                 <th>Время</th>
                 <th>Цена</th>
                 <th>Получатель</th>
@@ -131,6 +151,13 @@
             {% for el in data %}
                 <tr>
                     <form id='form{{ el.id }}'>
+                        <td>
+                            <div class="col-auto d-none d-lg-block">
+                                <img src="{{ el.magazinhastovar.tovar.picture }}" width="40" height="50">
+
+                                </svg>
+                            </div>
+                        </td>
                         <td>{{ el.id }}</td>
                         <td>
                             {{ el.time }}
