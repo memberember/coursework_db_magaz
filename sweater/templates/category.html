@@ -30,9 +30,10 @@
                         <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
                             <div class="col p-4 d-flex flex-column position-static">
                                 <form id='{{ el.id }}'>
-                                    <strong class="d-inline-block mb-2 text-primary">{{ el.strana }}</strong>
+                                    <strong class="d-inline-block mb-2 text-primary">{{ el.country.name }}</strong>
                                     <h3 class="mb-0">{{ el.name }}</h3>
-                                    <div class="mb-1 text-muted">{{ el.sex }} {{ el.cvet }} {{ el.razmer }}</div>
+                                    <div class="mb-1 text-muted">{{ el.sex_name.name }} {{ el.color.name }}.
+                                        Стандарт: {{ el.size.size_category.name }} {{ el.size.name }}</div>
                                     <p class="card-text mb-auto">{{ el.opisanie }}</p>
                                     <p class="card-text mb-auto">Категория: {{ el.category.name }}</p>
 
@@ -95,14 +96,14 @@
 
         <div class="container">
             <h4 class="mb-3">Список товаров: </h4>
-                    <a href="/category/{{ category.id }}&sorted_by=1" class="btn btn-outline-secondary" type="button"
-           id="button-addon2">
-            Сортировать по возрастанию
-        </a>
-        <a href="/category/{{ category.id }}&sorted_by=0" class="btn btn-outline-secondary" type="button"
-           id="button-addon2">
-            Сортировать по убыванию
-        </a>
+            <a href="/category/{{ category.id }}&sorted_by=1" class="btn btn-outline-secondary" type="button"
+               id="button-addon2">
+                Сортировать по возрастанию
+            </a>
+            <a href="/category/{{ category.id }}&sorted_by=0" class="btn btn-outline-secondary" type="button"
+               id="button-addon2">
+                Сортировать по убыванию
+            </a>
         </div>
 
         <div class="container">
@@ -115,19 +116,16 @@
                         <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
                             <div class="col p-4 d-flex flex-column position-static">
                                 <form id='{{ el.id }}'>
-                                    <strong class="d-inline-block mb-2 text-primary">{{ el.strana }}</strong>
+                                    <strong class="d-inline-block mb-2 text-primary">{{ el.country.name }}</strong>
                                     <h3 class="mb-0">{{ el.name }}</h3>
-                                    <div class="mb-1 text-muted">{{ el.sex }} {{ el.cvet }} {{ el.razmer }}</div>
+                                    <div class="mb-1 text-muted">{{ el.sex_name.name }} {{ el.color.name }}.
+                                        Стандарт: {{ el.size.size_category.name }} {{ el.size.name }}</div>
                                     <p class="card-text mb-auto">{{ el.opisanie }}</p>
                                     <p class="card-text mb-auto">Категория: {{ el.category.name }}</p>
                                     <div class="input-group mb-3">
-                                        {#                                    <input type="hidden" name="tovar_id" id="tovar_id" value='{{ el.tovar.id }}'/>#}
-                                        {#                                    <input type="hidden" name="magazin_id" id="magazin_id" value='{{ magaz.id }}'/>#}
-
                                         <div class="input-group">
                                             <select name="magazinhastovar_id" id="magazinhastovar_id"
                                                     class="form-control">
-
                                                 {% for mag in magazinhastovar %}
                                                     {% if mag.tovar_id == el.id %}
                                                         <option value="{{ mag.id }}">{{ mag.magazin.name }}
@@ -137,13 +135,11 @@
 
                                                 {% endfor %}
                                             </select>
-
                                             <button onclick="ajax_fun(this.form,'addOrder');"
                                                     class="btn btn-outline-secondary" type="button" id="button-addon2">
                                                 Заказать
                                             </button>
                                         </div>
-
                                     </div>
                                 </form>
                             </div>

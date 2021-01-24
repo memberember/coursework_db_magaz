@@ -3,14 +3,64 @@
 {% extends 'base.html' %}
 
 {% block title %}
-<title>Контакты</title>
+    <title>Контакты</title>
+
+
+
+    <script type='text/javascript'>
+
+        function ajax_getdata(form, processUrl) {
+            $.ajax(
+                {
+                    data: $(form).serialize(),
+                    type: 'POST',
+                    url: '/' + processUrl
+                })
+                .done(function (data) {
+
+                    if (data.error) {
+                                                console.log("221")
+
+                        {#$('#errorAlert').text(data.error).show();#}
+                        {#$('#successAlert').hide();#}
+                    } else {
+                        console.log("123")
+                        var Table = document.getElementById("mytable");
+                        buffer = ""
+                        for (var i = 0; i < data.success.length; i++) {
+                            console.log(data.success[i])
+
+                            buffer = buffer + "<tr><td>" + data.success[i] + "</td></tr>";
+                        }
+                        Table.innerHTML = buffer
+
+                    }
+
+                });
+            event.preventDefault();
+        }
+    </script>
 {% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>О системе</h1>
-    <p>Система разрабатывается в рамках учебного проекта</p>
-<input type="date" атрибуты>
+    <div class="container">
+        <h1>О системе</h1>
+        <p>Система разрабатывается в рамках учебного проекта</p>
+        <div
+                style="display: none;"
+        >
 
-</div>
+            <input id='date' name='date' type="date">
+            <INPUT id='state' type='button' value='Извлечь данные' onclick="extract()"/>
+            <INPUT id='state' type='button' value='Удалить данные' onclick='dextract()'/>
+            <INPUT id='state' type='button' value='Данные' onclick="ajax_getdata(this.form,'getData');"/>
+
+
+            <table id="mytable">
+
+            </table>
+
+        </div>
+
+    </div>
 {% endblock %}

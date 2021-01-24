@@ -81,6 +81,7 @@ def logout():
 @app.route('/about')
 @login_required
 def about():
+    print(request.args)
     return render_template('about.html')
 
 
@@ -172,10 +173,11 @@ def magazin_list():
 @login_required
 def magazin(id, orderby=0):
     magaz = Magazin.query.get(id)
-    # todo вернуть обратно на desc
-    items = Magazinhastovar.query.filter_by(magazin_id=id).order_by(Magazinhastovar.cost.asc()).all()
     if orderby == 1:
         items = Magazinhastovar.query.filter_by(magazin_id=id).order_by(Magazinhastovar.cost.asc()).all()
+    else:
+        items = Magazinhastovar.query.filter_by(magazin_id=id).order_by(Magazinhastovar.cost.desc()).all()
+
     categories = Kategorya.query.order_by(Kategorya.id).all()
     magazins = Magazin.query.filter_by(user_id=current_user.id).all()
     countries = Country.query.all()
@@ -776,6 +778,25 @@ def edit_order_status_ajax():
         return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
 
 
+# адрес для ajax запроса изменения товара
+@app.route('/getData', methods=['POST'])
+def get_data_ajax():
+    items = Country.query.all()
+
+    print(getdatas())
+
+    buffer = []
+    for i in items:
+        buffer.append(getdatas())
+
+    try:
+
+        return jsonify({'success': buffer})
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
 # перенаправление на логин при неавторизованном пользователе
 @app.after_request
 def redirect_to_signin(response):
@@ -783,10 +804,13 @@ def redirect_to_signin(response):
         return redirect(url_for('login_page') + '?next=' + request.url)
     return response
 
+
 # todo
 # сделать список товаров с пагинацией
 # поиск и фильтрация по атрибутам товара
 # добавить фильтрацию и поиск для хозяев
 # сортировка заказов по дате
-# товар может добавлять только админ
-# убрать форк из магазинов и оставить только в товарах
+
+
+def getdatas():
+    return '<div class="col-md-6">' + ' <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">' + ' <div class="col p-4 d-flex flex-column position-static">' + '<form id=' + '{{el.id}}' + '>' + ' <strong class="d-inline-block mb-2 text-primary">{{ el.country.name }}</strong>' + ' <h3 class="mb-0">{{ el.name }}</h3>' + ' <div class="mb-1 text-muted">{{ el.sex_name.name }} {{ el.color.name }}.Стандарт: {{ el.size.size_category.name }} {{ el.size.name }}</div>' + ' <p class="card-text mb-auto">{{ el.opisanie }}</p>' + ' <p class="card-text mb-auto">Категория: {{ el.category.name }}</p>' + ' <div class="input-group mb-3">' + ' <div class="input-group">' + '<select name="magazinhastovar_id" id="magazinhastovar_id"' + ' class="form-control">' + ' {% for mag in magazinhastovar %}' + ' {% if mag.tovar_id == el.id %}' + ' <option value="{{ mag.id }}">{{ mag.magazin.name }}' + ' Осталось: {{ mag.count }}шт. {{ mag.cost }}₽' + ' </option>' + ' {% endif %}' + ' {% endfor %}' + ' </select>+' + '<button onclick=' + "ajax_fun(this.form,'+123+');" + ' class="btn btn-outline-secondary" type="button" id="button-addon2">Заказать' + ' </button>' + ' </div>' + ' </div>' + ' </form>' + ' </div>' + ' <div class="col-auto d-none d-lg-block">' + ' <img src="{{ el.picture }}" width="200" height="250">' + ' </svg>' + ' </div>' + ' </div>' + ' </div>'
