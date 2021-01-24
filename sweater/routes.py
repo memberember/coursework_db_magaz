@@ -5,28 +5,10 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from sweater import app, db
-from sweater.models import User, Zakaz, Magazin, Tovar, Kategorya, Magazinhastovar
+from sweater.models import User, Zakaz, Magazin, Tovar, Kategorya, Magazinhastovar, Country, Color, SizeCategory, Sex, \
+    Size, OrderStatus
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
-
-
-class AlchemyEncoder(json.JSONEncoder):
-
-    def default(self, obj):
-        if isinstance(obj.__class__, DeclarativeMeta):
-            # an SQLAlchemy class
-            fields = {}
-            for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
-                data = obj.__getattribute__(field)
-                try:
-                    json.dumps(data)  # this will fail on non-encodable values, like other classes
-                    fields[field] = data
-                except TypeError:
-                    fields[field] = None
-            # a json-encodable dict
-            return fields
-
-        return json.JSONEncoder.default(self, obj)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -190,13 +172,25 @@ def magazin_list():
 @login_required
 def magazin(id, orderby=0):
     magaz = Magazin.query.get(id)
-    items = Magazinhastovar.query.filter_by(magazin_id=id).order_by(Magazinhastovar.cost.desc()).all()
+    # todo вернуть обратно на desc
+    items = Magazinhastovar.query.filter_by(magazin_id=id).order_by(Magazinhastovar.cost.asc()).all()
     if orderby == 1:
         items = Magazinhastovar.query.filter_by(magazin_id=id).order_by(Magazinhastovar.cost.asc()).all()
     categories = Kategorya.query.order_by(Kategorya.id).all()
     magazins = Magazin.query.filter_by(user_id=current_user.id).all()
+    countries = Country.query.all()
+    sizes = Size.query.all()
+    colors = Color.query.all()
 
-    return render_template('magazin.html', data=items, magaz=magaz, categories=categories, magazins=magazins)
+    return render_template('magazin.html',
+                           data=items,
+                           magaz=magaz,
+                           categories=categories,
+                           magazins=magazins,
+                           countries=countries,
+                           sizes=sizes,
+                           colors=colors
+                           )
 
 
 # страница магазина
@@ -299,21 +293,31 @@ def category_list():
 @login_required
 def orders():
     items = Zakaz.query.order_by(Zakaz.id).all()
-    return render_template('orders.html', data=items)
+    order_status = OrderStatus.query.order_by(OrderStatus.id).all()
+    return render_template('orders.html', data=items, order_status=order_status)
 
 
 # страница товаров
 @app.route('/tovar_list')
 @login_required
 def tovar_list():
-    # items = Tovar.query.order_by(Tovar.id).all()
     magazins = Magazin.query.filter_by(user_id=current_user.id).all()
     magazinhastovar = Magazinhastovar.query.all()
     items = Tovar.query.order_by(Tovar.id.desc()).limit(50).all()
+    countries = Country.query.all()
+    sizes = Size.query.all()
+    colors = Color.query.all()
 
     categories = Kategorya.query.order_by(Kategorya.id).all()
-    return render_template('tovar_list.html', data=items, categories=categories, magazins=magazins,
-                           magazinhastovar=magazinhastovar)
+    return render_template('tovar_list.html',
+                           data=items,
+                           categories=categories,
+                           magazins=magazins,
+                           magazinhastovar=magazinhastovar,
+                           countries=countries,
+                           sizes=sizes,
+                           colors=colors
+                           )
 
 
 # адрес для ajax запроса изменения пользователя
@@ -451,9 +455,6 @@ def edit_tovar_ajax():
     picture = request.form.get('picture')
     sex = request.form.get('sex')
     category_id = request.form.get('category_id')
-    cost = request.form.get('cost')
-    count = request.form.get('count')
-    magtovar_id = request.form.get('magtovar_id')
 
     print(request
           .form)
@@ -470,14 +471,72 @@ def edit_tovar_ajax():
 
         db.session.add(tovar)
         db.session.commit()
+        return jsonify({'success': f'Успешно сохранен: {tovar.name}'})
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса изменения товара
+@app.route('/editTovarWithCost', methods=['POST'])
+def edit_tovar_with_cost_ajax():
+    id = request.form.get('tovar_id')
+    name = request.form.get('tovar_name')
+    cvet = request.form.get('cvet')
+    opisanie = request.form.get('opisanie')
+    strana = request.form.get('strana')
+    razmer = request.form.get('razmer')
+    picture = request.form.get('picture')
+    sex = request.form.get('sex')
+    category_id = request.form.get('category_id')
+    cost = request.form.get('cost')
+    count = request.form.get('count')
+    magtovar_id = request.form.get('magtovar_id')
+    print(cost + count)
+
+    print(request
+          .form)
+    try:
+        tovar = Tovar.query.get(id)
+        tovar.name = name
+        tovar.cvet = cvet
+        tovar.opisanie = opisanie
+        tovar.strana = strana
+        tovar.razmer = razmer
+        tovar.picture = picture
+        tovar.sex = sex
+        tovar.category_id = category_id
+        db.session.add(tovar)
+        db.session.commit()
+        print(magtovar_id)
         magtovar = Magazinhastovar.query.get(magtovar_id)
         magtovar.cost = cost
         magtovar.count = count
-
         db.session.add(magtovar)
         db.session.commit()
         return jsonify({'success': f'Успешно сохранен: {tovar.name}'})
-    except:
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса изменения товара
+@app.route('/editTovarCost', methods=['POST'])
+def edit_tovar_cost_ajax():
+    cost = request.form.get('cost')
+    count = request.form.get('count')
+    magtovar_id = request.form.get('magtovar_id')
+    print(request.form)
+
+    try:
+        magtovar = Magazinhastovar.query.get(magtovar_id)
+        magtovar.cost = cost
+        magtovar.count = count
+        db.session.add(magtovar)
+        db.session.commit()
+        return jsonify({'success': f'Данные товара "{magtovar.tovar.name}" изменены.'})
+    except Exception as e:
+        print(e)
         return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
 
 
@@ -486,7 +545,7 @@ def edit_tovar_ajax():
 def delete_tovar_ajax():
     name = request.form.get('tovar_name')
     tovar_id = request.form.get('tovar_id')
-
+    print(request.form)
     try:
         Tovar.query.filter(Tovar.id == tovar_id).delete()
 
@@ -497,9 +556,73 @@ def delete_tovar_ajax():
         return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
 
 
+# адрес для ajax запроса удаления товара
+@app.route('/deleteTovarFromMagaz', methods=['POST'])
+def delete_tovar_from_magaz_ajax():
+    magtovar_id = request.form.get('magtovar_id')
+    try:
+        Magazinhastovar.query.filter(Magazinhastovar.id == magtovar_id).delete()
+
+        db.session.commit()
+        return jsonify({'success': f'Товар успешно удален'})
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
 # адрес для ajax запроса добавления товара
 @app.route('/addTovar', methods=['POST'])
 def add_tovar_ajax():
+    # вытаскиваем данные с полученной формы
+    name = request.form.get('name')
+    cvet = request.form.get('cvet')
+    opisanie = request.form.get('opisanie')
+    strana = request.form.get('strana')
+    razmer = request.form.get('razmer')
+    picture = request.form.get('picture')
+    sex = request.form.get('sex')
+    category_id = request.form.get('category_id')
+    # magaz_id = request.form.get('magaz_id')
+    # cost = request.form.get('cost')
+    # count = request.form.get('count')
+
+    # проверка заполненности полей
+    if not name:
+        return jsonify({'error': 'Название не должно быть пустым'})
+
+    # отловщик ошибок
+    try:
+
+        # создание объекта Tovar
+        tovar = Tovar(name=name,
+                      cvet=cvet,
+                      opisanie=opisanie,
+                      strana=strana,
+                      razmer=razmer,
+                      picture=picture,
+                      sex=sex,
+                      category_id=category_id
+                      )
+        db.session.add(tovar)
+        db.session.commit()
+        # tovar = Tovar.query.order_by(Tovar.id.desc()).first()
+        # magazin_has_tovar = Magazinhastovar(magazin_id=magaz_id, tovar_id=tovar.id,
+        #                                     cost=cost,
+        #                                     count=count
+        #                                     )
+        # db.session.add(magazin_has_tovar)
+        # db.session.commit()
+        return jsonify({'success': f'Успешно добавлен: {name}'})
+
+    # если поймалась ошибка, то выполняется этот блок
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса добавления товара с ценой
+@app.route('/addTovarWithCost', methods=['POST'])
+def add_tovar_with_cost_ajax():
     # вытаскиваем данные с полученной формы
     name = request.form.get('name')
     cvet = request.form.get('cvet')
@@ -542,7 +665,8 @@ def add_tovar_ajax():
         return jsonify({'success': f'Успешно добавлен: {name}'})
 
     # если поймалась ошибка, то выполняется этот блок
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
 
 
@@ -633,6 +757,25 @@ def add_order_ajax():
         return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
 
 
+# адрес для ajax запроса добавления категории
+@app.route('/editOrderStatus', methods=['POST'])
+def edit_order_status_ajax():
+    # вытаскиваем данные с полученной формы
+    order_id = request.form.get('order_id')
+    order_status = request.form.get('order_status')
+    zakaz = Zakaz.query.get(order_id)
+    try:
+        zakaz.status = order_status
+        db.session.add(zakaz)
+        db.session.commit()
+        return jsonify({'success': f'Статус заказа пользователя "{zakaz.user.fio}" успешно изменен'})
+
+    # если поймалась ошибка, то выполняется этот блок
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
 # перенаправление на логин при неавторизованном пользователе
 @app.after_request
 def redirect_to_signin(response):
@@ -642,3 +785,8 @@ def redirect_to_signin(response):
 
 # todo
 # сделать список товаров с пагинацией
+# поиск и фильтрация по атрибутам товара
+# добавить фильтрацию и поиск для хозяев
+# сортировка заказов по дате
+# товар может добавлять только админ
+# убрать форк из магазинов и оставить только в товарах

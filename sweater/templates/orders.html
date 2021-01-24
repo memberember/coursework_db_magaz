@@ -11,20 +11,23 @@
 {% block owner %}
     <div class="container">
         <h1 align="center">Список заказов</h1>
+
+        <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+        <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
         <table class="table table-striped table-sm">
             <thead>
             {#Заголовки таблицы#}
             <tr>
-                <th>#</th>
                 <th>Фото</th>
                 <th>Время</th>
                 <th>Цена</th>
                 <th>Получатель</th>
-
                 <th>Адрес</th>
                 <th>Номер</th>
                 <th>Товар</th>
                 <th>Магазин</th>
+                <th>Статус заказа</th>
+
             </tr>
             </thead>
             <tbody>
@@ -32,8 +35,7 @@
                 {% if current_user.id==el.magazinhastovar.magazin.user_id %}
                     <tr>
                         <form id='form{{ el.id }}'>
-                            <td>{{ el.id }}</td>
-                                <td>
+                            <td>
                                 <div class="col-auto d-none d-lg-block">
                                     <img src="{{ el.magazinhastovar.tovar.picture }}" width="40" height="50">
 
@@ -49,7 +51,7 @@
                             <td>
                                 {{ el.user.fio }}
                             </td>
-                                <td>
+                            <td>
                                 {{ el.user.adress }}
                             </td>
                             <td>
@@ -60,6 +62,26 @@
                             </td>
                             <td>
                                 {{ el.magazinhastovar.magazin.name }}
+                            </td>
+                            <td>
+                                <select name="order_status" id="order_status" class="form-control">
+
+                                    {% for status in order_status %}
+                                        <option value="{{ status.id }}"
+                                                {% if el.status == status.id %}
+                                                selected
+                                                {% endif %}
+                                        >{{ status.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <input type="hidden" name="order_id" id="order_id"
+                                       value='{{ el.id }}'/>
+                                <button type="button" class="btn btn-outline-success"
+                                        onclick="ajax_fun(this.form,'editOrderStatus');">Сохранить
+                                </button>
+
                             </td>
                         </form>
                     </tr>
@@ -80,9 +102,7 @@
             <thead>
             {#Заголовки таблицы#}
             <tr>
-                <th>#</th>
                 <th>Фото</th>
-
                 <th>Время</th>
                 <th>Цена</th>
                 <th>Получатель</th>
@@ -90,6 +110,8 @@
                 <th>Номер</th>
                 <th>Товар</th>
                 <th>Магазин</th>
+                <th>Статус заказа</th>
+
             </tr>
             </thead>
             <tbody>
@@ -97,7 +119,6 @@
                 {% if current_user.id==el.user.id %}
                     <tr>
                         <form id='form{{ el.id }}'>
-                            <td>{{ el.id }}</td>
                             <td>
                                 <div class="col-auto d-none d-lg-block">
                                     <img src="{{ el.magazinhastovar.tovar.picture }}" width="40" height="50">
@@ -105,7 +126,6 @@
                                     </svg>
                                 </div>
                             </td>
-
                             <td>
                                 {{ el.time }}
                             </td>
@@ -127,6 +147,9 @@
                             <td>
                                 {{ el.magazinhastovar.magazin.name }}
                             </td>
+                            <td>
+                                {{ el.order_status.name }}
+                            </td>
                         </form>
                     </tr>
                 {% endif %}
@@ -142,21 +165,22 @@
 {% block admin %}
     <div class="container">
         <h1 align="center">Список заказов</h1>
+
+        <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+        <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
         <table class="table table-striped table-sm">
             <thead>
             {#Заголовки таблицы#}
             <tr>
-                <th>#</th>
                 <th>Фото</th>
-
                 <th>Время</th>
                 <th>Цена</th>
                 <th>Получатель</th>
-
                 <th>Адрес</th>
                 <th>Номер</th>
                 <th>Товар</th>
                 <th>Магазин</th>
+                <th>Статус заказа</th>
             </tr>
             </thead>
             <tbody>
@@ -170,7 +194,6 @@
                                 </svg>
                             </div>
                         </td>
-                        <td>{{ el.id }}</td>
                         <td>
                             {{ el.time }}
                         </td>
@@ -180,17 +203,37 @@
                         <td>
                             {{ el.user.fio }}
                         </td>
-                           <td>
-                                {{ el.user.adress }}
-                            </td>
-                            <td>
-                                {{ el.user.phone }}
-                            </td>
+                        <td>
+                            {{ el.user.adress }}
+                        </td>
+                        <td>
+                            {{ el.user.phone }}
+                        </td>
                         <td>
                             {{ el.magazinhastovar.tovar.name }}
                         </td>
                         <td>
                             {{ el.magazinhastovar.magazin.name }}
+                        </td>
+                        <td>
+                            <select name="order_status" id="order_status" class="form-control">
+
+                                {% for status in order_status %}
+                                    <option value="{{ status.id }}"
+                                            {% if el.status == status.id %}
+                                            selected
+                                            {% endif %}
+                                    >{{ status.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="hidden" name="order_id" id="order_id"
+                                   value='{{ el.id }}'/>
+                            <button type="button" class="btn btn-outline-success"
+                                    onclick="ajax_fun(this.form,'editOrderStatus');">Сохранить
+                            </button>
+
                         </td>
                     </form>
                 </tr>
