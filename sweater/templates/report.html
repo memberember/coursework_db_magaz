@@ -1,0 +1,91 @@
+<!--about-->
+
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Отчеты</title>
+
+
+
+    <script type='text/javascript'>
+
+        function ajax_getData(form, processUrl) {
+            $.ajax(
+                {
+                    data: $(form).serialize(),
+                    type: 'POST',
+                    url: '/' + processUrl
+                })
+                .done(function (data) {
+
+                    if (data.error) {
+
+                        $('#errorAlert').text(data.error).show();
+                        $('#successAlert').hide();
+                    } else {
+                        var Table = document.getElementById("mytable");
+                        buffer = ""
+                        if (data.success.length > 0) {
+                            $('#errorAlert').text(data.error).hide();
+
+                            $('#search_results').show();
+
+                            for (var i = 0; i < data.success.length; i++) {
+                                console.log(data.success[i])
+
+                                buffer = buffer + "<tr>" + data.success[i] + "</tr>";
+                            }
+                            Table.innerHTML = buffer
+                        } else {
+                            $('#search_results').hide();
+                            $('#errorAlert').text('Нет результатов').show();
+                        }
+                    }
+
+                });
+            event.preventDefault();
+        }
+
+    </script>
+{% endblock %}
+
+{% block owner %}
+
+    <div class="container">
+        <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+        <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+        <form>
+            <div class="input-group">
+                <select class="form-control" name='magaz' id="magaz">
+                    {% for el in magazins %}
+                        <option value="{{ el.id }}">{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+                <input id='first_date' name='first_date' type="date">
+                <input id='second_date' name='second_date' type="date">
+                <button onclick="ajax_getData(this.form,'getReport');"
+                        class="btn btn-outline-secondary" type="button" id="button-addon2">
+                    Сгенерировать отчет
+                </button>
+            </div>
+        </form>
+
+        <table class="table table-striped table-sm">
+
+            <tbody id="mytable">
+
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+

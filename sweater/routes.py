@@ -84,6 +84,65 @@ def about():
     return render_template('about.html')
 
 
+# страница "О нас"
+@app.route('/report')
+@login_required
+def report():
+    magazins = Magazin.query.filter_by(user_id=current_user.id).all()
+    return render_template('report.html', magazins=magazins)
+
+
+def str_to_timestamp(string):
+    import time
+    import datetime
+    return time.mktime(datetime.datetime.strptime(string, "%Y-%m-%d").timetuple())
+
+
+# страница форка
+@app.route('/getReport', methods=['POST'])
+@login_required
+def get_report_ajax():
+    print(request.form)
+    first_date = request.form.get('first_date')
+    second_date = request.form.get('second_date')
+    magaz = request.form.get('magaz')
+
+    try:
+        items = Zakaz.query.order_by(Zakaz.time).all()
+        buffer = []
+        sum = 0
+        for i in items:
+            if i.magazinhastovar.magazin_id == int(magaz):
+
+                if (str_to_timestamp(first_date) <= str_to_timestamp(i.time) <= str_to_timestamp(second_date)):
+                    buf = f'<td><img src = "{i.magazinhastovar.tovar.picture}" width = "40" height = "50"></td>' + \
+                          f'<td>{i.time}</td>' + \
+                          f'<td>{i.magazinhastovar.cost}</td>' + \
+                          f'<td>{i.user.fio}</td>' + \
+                          f'<td>{i.user.adress}</td>' + \
+                          f'<td>{i.user.phone}</td>' + \
+                          f'<td>{i.magazinhastovar.tovar.name}</td>' + \
+                          f'<td>{i.magazinhastovar.magazin.name}</td>' + \
+                          f'<td>{i.order_status.name}</td>'
+                    sum += i.magazinhastovar.cost
+                    buffer.append(buf)
+        header = f'<th>Фото</th>'
+        header += f'<th>Время</th>'
+        header += f'<th>Цена(Сумма:{sum})</th>'
+        header += f'<th>Получатель</th>'
+        header += f'<th>Адрес</th>'
+        header += f'<th>Номер</th>'
+        header += f'<th>Товар</th>'
+        header += f'<th>Магазин</th>'
+        header += f'<th>Статус заказа</th>'
+        buffer.insert(0, header)
+        return jsonify({'success': buffer})
+    except Exception as e:
+        if not (first_date and second_date):
+            return jsonify({'error': 'Обе даты должны быть выбраны'})
+        return jsonify({'error': 'Что то пошло не так, попробуйте снова'})
+
+
 # страница "Товаров"
 @app.route('/tovar_list')
 @login_required
@@ -703,7 +762,7 @@ def add_order_ajax():
     from datetime import date
 
     today = date.today()
-    d1 = today.strftime("%d/%m/%Y")
+    d1 = today.strftime("%Y-%m-%d")
     # отловщик ошибок
     magazinhastovar = Magazinhastovar.query.get(magazinhastovar_id)
     try:
@@ -898,7 +957,6 @@ def get_html_tovar_owner(el):
 
 
 def get_html_tovar_admin(el):
-
     magazins = Magazin.query.filter_by(user_id=current_user.id).all()
     magazinhastovar = Magazinhastovar.query.all()
     countries = Country.query.all()
@@ -912,56 +970,54 @@ def get_html_tovar_admin(el):
           '<div class="col p-4">'
 
     # name
-    buf +='<form id = ' + f"'{el.id}'" + '>'+\
-    '<input type = "hidden" name = "tovar_id" id = "tovar_id" value = ' + f"'{el.id}'" + ' id = "minput"/><div class ="input-group">'+\
-    '<span class ="input-group-text">Название</span><input type = "text" name = "tovar_name" '+\
-    f'id = "tovar_name" aria-label = "Название" class ="form-control" value="{el.name}"></div>'
+    buf += '<form id = ' + f"'{el.id}'" + '>' + \
+           '<input type = "hidden" name = "tovar_id" id = "tovar_id" value = ' + f"'{el.id}'" + ' id = "minput"/><div class ="input-group">' + \
+           '<span class ="input-group-text">Название</span><input type = "text" name = "tovar_name" ' + \
+           f'id = "tovar_name" aria-label = "Название" class ="form-control" value="{el.name}"></div>'
 
     # color
-    buf+= '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Цвет</label><select '+\
-    'name = "cvet" id = "cvet" class ="form-control">'
+    buf += '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Цвет</label><select ' + \
+           'name = "cvet" id = "cvet" class ="form-control">'
 
     for color in colors:
         buf += f'<option value = "{color.id}"'
         if el.cvet == color.id:
-            buf+= 'selected'
-        buf+=f'>{color.name}</option>'
-    buf+='</select></div>'
+            buf += 'selected'
+        buf += f'>{color.name}</option>'
+    buf += '</select></div>'
 
     # strana
-    buf+= '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Страна</label><select '+\
-    'name = "strana" id = "strana" class ="form-control">'
-
+    buf += '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Страна</label><select ' + \
+           'name = "strana" id = "strana" class ="form-control">'
 
     for country in countries:
         buf += f'<option value = "{country.id}"'
         if el.strana == country.id:
-            buf+= 'selected'
-        buf+=f'>{country.name}</option>'
-    buf+='</select></div>'
+            buf += 'selected'
+        buf += f'>{country.name}</option>'
+    buf += '</select></div>'
 
     # razmer
-    buf+= '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Размер</label><select '+\
-    'name = "razmer" id = "razmer" class ="form-control">'
-
+    buf += '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Размер</label><select ' + \
+           'name = "razmer" id = "razmer" class ="form-control">'
 
     for size in sizes:
         buf += f'<option value = "{size.id}"'
         if el.razmer == size.id:
-            buf+= 'selected'
-        buf+=f'>Стандарт: { size.size_category.name } { size.name }</option>'
-    buf+='</select></div>'
+            buf += 'selected'
+        buf += f'>Стандарт: {size.size_category.name} {size.name}</option>'
+    buf += '</select></div>'
 
     # category
-    buf+= '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Страна</label><select '+\
-    'name = "category_id" id = "category_id" class ="form-control">'
+    buf += '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Страна</label><select ' + \
+           'name = "category_id" id = "category_id" class ="form-control">'
 
     for category in categories:
         buf += f'<option value = "{category.id}"'
         if el.category_id == category.id:
-            buf+= 'selected'
-        buf+=f'>{category.name}</option>'
-    buf+='</select></div>'
+            buf += 'selected'
+        buf += f'>{category.name}</option>'
+    buf += '</select></div>'
 
     # picture
     buf += '<div class ="input-group">' + \
@@ -975,35 +1031,29 @@ def get_html_tovar_admin(el):
 
     # radio
 
-    buf+='<div class ="form-check form-check-inline"><input '
+    buf += '<div class ="form-check form-check-inline"><input '
     if el.sex == 2:
-        buf+='checked'
-    buf+=' class ="form-check-input" type="radio" name="sex" id = "sex" value = "2"><label '
-    buf+='class ="form-check-label" for ="inlineRadio1">Для мужчин</label></div>'
+        buf += 'checked'
+    buf += ' class ="form-check-input" type="radio" name="sex" id = "sex" value = "2"><label '
+    buf += 'class ="form-check-label" for ="inlineRadio1">Для мужчин</label></div>'
 
-    buf+='<div class ="form-check form-check-inline"><input '
+    buf += '<div class ="form-check form-check-inline"><input '
     if el.sex == 1:
-        buf+='checked'
-    buf+=' class ="form-check-input" type="radio" name="sex" id = "sex" value = "1"><label '
-    buf+='class ="form-check-label" for ="inlineRadio2">Для женщин</label></div>'
+        buf += 'checked'
+    buf += ' class ="form-check-input" type="radio" name="sex" id = "sex" value = "1"><label '
+    buf += 'class ="form-check-label" for ="inlineRadio2">Для женщин</label></div>'
 
-    buf+='<div class="d-grid gap-2 d-md-block">'
+    buf += '<div class="d-grid gap-2 d-md-block">'
     buf += '<button onclick = "ajax_fun(this.form,' + "'editTovar'" + ');" class ="btn btn-outline-success" type="button" id="button-addon2">Сохранить</button>'
     buf += '<button onclick = "ajax_delete(this.form,' + "'deleteTovar'" + ');" class ="btn btn-outline-danger" type="button" id="button-addon2"> Удалить </button></div>'
 
-
-
     buf += '</form></div>' + '<div class="col-auto d-none d-lg-block">' + \
-           f'<img src="{ el.picture }" width="280" height="350">' \
+           f'<img src="{el.picture}" width="280" height="350">' \
            + '</svg>' + '</div>' + '</div>' + '</div>'
     return buf
-
-
-
 
 # todo
 # сделать список товаров с пагинацией
 # отчеты за период
-# Запихнуть поиск и фильтрацию в товары.
 # Фильтрация по нескольким атрибутам.
 # Формирование отчёта по фильтрации в заказах: дата и магазин.
