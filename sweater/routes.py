@@ -88,12 +88,23 @@ def about():
 @app.route('/search')
 @login_required
 def search():
-    categories = Kategorya.query.order_by(Kategorya.id).all()
-    colors = Kategorya.query.order_by(Kategorya.id).all()
-    sex = Kategorya.query.order_by(Kategorya.id).all()
-    country = Kategorya.query.order_by(Kategorya.id).all()
+    magazins = Magazin.query.filter_by(user_id=current_user.id).all()
+    magazinhastovar = Magazinhastovar.query.all()
+    items = Tovar.query.order_by(Tovar.id.desc()).limit(50).all()
+    countries = Country.query.all()
+    sizes = Size.query.all()
+    colors = Color.query.all()
 
-    return render_template('search.html', categories=categories)
+    categories = Kategorya.query.order_by(Kategorya.id).all()
+    return render_template('search.html',
+                           data=items,
+                           categories=categories,
+                           magazins=magazins,
+                           magazinhastovar=magazinhastovar,
+                           countries=countries,
+                           sizes=sizes,
+                           colors=colors
+                           )
 
 
 # страница "О нас"
@@ -765,25 +776,45 @@ def get_data_ajax():
     search = request.form.get("search")
     type = request.form.get("type")
     second = request.form.get("second")
+    magazinhastovar = Magazinhastovar.query.all()
 
     print(request.form)
-    items = Tovar.query.filter_by(name=search).all()
+    if search != '':
+        items = Tovar.query.filter_by(name=search).all()
+    else:
+        items = Tovar.query.order_by(Tovar.id.desc()).limit(50).all()
 
     if type == '1':
-        items = Tovar.query.filter_by(name=search).filter_by(category_id=second).all()
-
+        if search != '':
+            items = Tovar.query.filter_by(name=search).filter_by(category_id=second).all()
+        else:
+            items = Tovar.query.filter_by(category_id=second).all()
     elif type == '2':
-        items = Tovar.query.filter_by(name=search).filter_by(cvet=second).all()
-
+        if search != '':
+            items = Tovar.query.filter_by(name=search).filter_by(cvet=second).all()
+        else:
+            items = Tovar.query.filter_by(cvet=second).all()
     elif type == '3':
-        items = Tovar.query.filter_by(name=search).filter_by(sex=second).all()
+        if search != '':
+            items = Tovar.query.filter_by(name=search).filter_by(sex=second).all()
+        else:
+            items = Tovar.query.filter_by(sex=second).all()
     elif type == '4':
-        items = Tovar.query.filter_by(name=search).filter_by(strana=second).all()
+        if search != '':
+            items = Tovar.query.filter_by(name=search).filter_by(strana=second).all()
+        else:
+            items = Tovar.query.filter_by(strana=second).all()
 
     buffer = []
-    for i in items:
-        buffer.append(getHtmlTovar(i))
-
+    if current_user.type == 2:
+        for i in items:
+            buffer.append(get_html_tovar_user(i, magazinhastovar))
+    elif current_user.type == 1:
+        for i in items:
+            buffer.append(get_html_tovar_owner(i))
+    elif current_user.type == 0:
+        for i in items:
+            buffer.append(get_html_tovar_admin(i))
     try:
 
         return jsonify({'success': buffer})
@@ -796,7 +827,6 @@ def get_data_ajax():
 @app.route('/getSelectedData', methods=['POST'])
 def get_selected_data_ajax():
     type = request.form.get("type")
-    print(request.form)
     items = []
 
     if type == '1':
@@ -809,7 +839,7 @@ def get_selected_data_ajax():
         items = Country.query.all()
     buffer = []
     for i in items:
-        buffer.append(F'value="{i.id}">'+i.name)
+        buffer.append(F'value="{i.id}">' + i.name)
     try:
         return jsonify({'success': buffer})
     except Exception as e:
@@ -825,18 +855,178 @@ def redirect_to_signin(response):
     return response
 
 
+def get_html_tovar_user(el, maghastovar):
+    buf = '<div class="col-md-6"><div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative"><div class="col p-4 d-flex flex-column position-static">' + \
+          '<form id=' + f'{el.id}' + '><strong class="d-inline-block mb-2 text-primary">' + \
+          f'{el.country.name}</strong><h3 class="mb-0">' + \
+          f'{el.name}</h3><div class="mb-1 text-muted">' \
+          f'{el.sex_name.name} {el.color.name}' + \
+          f'. Стандарт: {el.size.size_category.name} {el.size.name}</div><p class="card-text mb-auto">' + \
+          f'{el.opisanie}</p><p class="card-text mb-auto">' + \
+          f'Категория: {el.category.name}</p>'
+
+    # button
+    buf += '<div class ="input-group mb-3"> <div class ="input-group"> <select ' \
+           'name="magazinhastovar_id" id="magazinhastovar_id" class ="form-control">'
+
+    # magazins
+
+    for mag in maghastovar:
+        if el.id == mag.tovar_id:
+            buf += f'<option value = "{mag.id}"> {mag.magazin.name}' + \
+                   f' Осталось: {mag.count}' + \
+                   f'шт.{mag.cost}₽ </option>'
+
+    buf += '</select> <button onclick = "ajax_fun(this.form,' + "'addOrder'" + ');" class ="btn btn-outline-secondary" type="button" id="button-addon2"> Заказать </button></div> </div>'
+
+    buf += f'</form> </div><div class="col-auto d-none d-lg-block"><img ' + \
+           f'src="{el.picture}" width="200" height="250"></div></div></div> '
+    return buf
+
+
+def get_html_tovar_owner(el):
+    magazins = Magazin.query.filter_by(user_id=current_user.id).all()
+
+    buf = '<div class="col-md-6"><div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250' \
+          ' position-relative"><div class="col p-4 d-flex flex-column position-static">' + \
+          '<form id=' + f'{el.id}' + '><strong class="d-inline-block mb-2 text-primary">' + \
+          f'{el.country.name}</strong><h3 class="mb-0">' + \
+          f'{el.name}</h3><div class="mb-1 text-muted">' \
+          f'{el.sex_name.name} {el.color.name}' + \
+          f' Стандарт: {el.size.size_category.name} {el.size.name}</div><p class="card-text mb-auto">' + \
+          f'{el.opisanie}</p><p class="card-text mb-auto">' + \
+          f'Категория: {el.category.name}</p>' + \
+          '<div class="input-group"> <span class ="input-group-text"> Количество </span> <input type="text"' \
+          ' name="tovar_count" id="tovar_count" class ="form-control" value="100"> </div >' + \
+          '<div class="input-group"><span class="input-group-text">Цена</span><input type="text" ' \
+          'name="tovar_cost" id="tovar_cost" class="form-control" value="100"></div>' + \
+          '<input type = "hidden" name = "tovar_id" id = "tovar_id" value = ' + \
+          f"'{el.id}'" + '/>'
+
+    buf += '<div class ="input-group mb-3"> <div class ="input-group"> <select ' \
+           'name="magazin_id" id="magazin_id" class ="form-control">'
+
+    # magazins
+    for mag in magazins:
+        if current_user.id == mag.user_id:
+            buf += f'<option value = "{mag.id}"> {mag.name}' + '</option>'
+
+    # button
+
+    buf += '</select> <button onclick = "ajax_fun(this.form,' + "'forkTovar'" + ');" class ="btn btn-outline-secondary" type="button" id="button-addon2"> Добавить к себе </button></div> </div>'
+
+    buf += f'</form> </div><div class="col-auto d-none d-lg-block"><img ' + \
+           f'src="{el.picture}" width="200" height="250"></div></div></div> '
+    return buf
+
+
+def get_html_tovar_admin(el):
+
+    magazins = Magazin.query.filter_by(user_id=current_user.id).all()
+    magazinhastovar = Magazinhastovar.query.all()
+    countries = Country.query.all()
+    sizes = Size.query.all()
+    colors = Color.query.all()
+    categories = Kategorya.query.order_by(Kategorya.id).all()
+
+    buf = ' <div name=' + f"'tr{el.id}'" + 'class="">' + \
+          ' <div id=' + f"'tr{el.id}'" + '' + \
+          'class="row border rounded flex-md-row mb-4 ">' + \
+          '<div class="col p-4">'
+
+    # name
+    buf +='<form id = ' + f"'{el.id}'" + '>'+\
+    '<input type = "hidden" name = "tovar_id" id = "tovar_id" value = ' + f"'{el.id}'" + ' id = "minput"/><div class ="input-group">'+\
+    '<span class ="input-group-text">Название</span><input type = "text" name = "tovar_name" '+\
+    f'id = "tovar_name" aria-label = "Название" class ="form-control" value="{el.name}"></div>'
+
+    # color
+    buf+= '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Цвет</label><select '+\
+    'name = "cvet" id = "cvet" class ="form-control">'
+
+    for color in colors:
+        buf += f'<option value = "{color.id}"'
+        if el.cvet == color.id:
+            buf+= 'selected'
+        buf+=f'>{color.name}</option>'
+    buf+='</select></div>'
+
+    # strana
+    buf+= '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Страна</label><select '+\
+    'name = "strana" id = "strana" class ="form-control">'
+
+
+    for country in countries:
+        buf += f'<option value = "{country.id}"'
+        if el.strana == country.id:
+            buf+= 'selected'
+        buf+=f'>{country.name}</option>'
+    buf+='</select></div>'
+
+    # razmer
+    buf+= '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Размер</label><select '+\
+    'name = "razmer" id = "razmer" class ="form-control">'
+
+
+    for size in sizes:
+        buf += f'<option value = "{size.id}"'
+        if el.razmer == size.id:
+            buf+= 'selected'
+        buf+=f'>Стандарт: { size.size_category.name } { size.name }</option>'
+    buf+='</select></div>'
+
+    # category
+    buf+= '<div class ="input-group"><label class ="input-group-text" for ="inputGroupSelect01">Страна</label><select '+\
+    'name = "category_id" id = "category_id" class ="form-control">'
+
+    for category in categories:
+        buf += f'<option value = "{category.id}"'
+        if el.category_id == category.id:
+            buf+= 'selected'
+        buf+=f'>{category.name}</option>'
+    buf+='</select></div>'
+
+    # picture
+    buf += '<div class ="input-group">' + \
+           '<span class ="input-group-text">Изображение</span><input type = "text" name = "picture" ' + \
+           f'id = "picture" aria-label = "Название" class ="form-control" value="{el.picture}"></div>'
+
+    # opisanie
+    buf += '<div class ="input-group">' + \
+           '<input type = "text" name = "opisanie" ' + \
+           f'id = "opisanie" aria-label = "Описание" class ="form-control" value="{el.opisanie}"></div>'
+
+    # radio
+
+    buf+='<div class ="form-check form-check-inline"><input '
+    if el.sex == 2:
+        buf+='checked'
+    buf+=' class ="form-check-input" type="radio" name="sex" id = "sex" value = "2"><label '
+    buf+='class ="form-check-label" for ="inlineRadio1">Для мужчин</label></div>'
+
+    buf+='<div class ="form-check form-check-inline"><input '
+    if el.sex == 1:
+        buf+='checked'
+    buf+=' class ="form-check-input" type="radio" name="sex" id = "sex" value = "1"><label '
+    buf+='class ="form-check-label" for ="inlineRadio2">Для женщин</label></div>'
+
+    buf+='<div class="d-grid gap-2 d-md-block">'
+    buf += '<button onclick = "ajax_fun(this.form,' + "'editTovar'" + ');" class ="btn btn-outline-success" type="button" id="button-addon2">Сохранить</button>'
+    buf += '<button onclick = "ajax_delete(this.form,' + "'deleteTovar'" + ');" class ="btn btn-outline-danger" type="button" id="button-addon2"> Удалить </button></div>'
+
+
+
+    buf += '</form></div>' + '<div class="col-auto d-none d-lg-block">' + \
+           f'<img src="{ el.picture }" width="280" height="350">' \
+           + '</svg>' + '</div>' + '</div>' + '</div>'
+    return buf
+
+
+
+
 # todo
 # сделать список товаров с пагинацией
-# сортировка заказов по дате
-
-
-def getHtmlTovar(el):
-    return '<div class="col-md-6"><div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative"><div class="col p-4 d-flex flex-column position-static">' + \
-           '<form id=' + f'{el.id}' + '><strong class="d-inline-block mb-2 text-primary">' + \
-           f'{el.country.name}</strong><h3 class="mb-0">' + \
-           f'{el.name}</h3><div class="mb-1 text-muted">' \
-           f'{el.sex_name.name} {el.color.name}' + \
-           f' Стандарт: {el.size.size_category.name} {el.size.name}</div><p class="card-text mb-auto">' + \
-           f'{el.opisanie}</p><p class="card-text mb-auto">' + \
-           f'Категория: {el.category.name}</p></form> </div><div class="col-auto d-none d-lg-block"><img ' + \
-           f'src="{el.picture}" width="200" height="250"></div></div></div> '
+# отчеты за период
+# Запихнуть поиск и фильтрацию в товары.
+# Фильтрация по нескольким атрибутам.
+# Формирование отчёта по фильтрации в заказах: дата и магазин.

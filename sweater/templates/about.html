@@ -45,36 +45,20 @@
 
     </div>
     <div
-                style="display:none;"
+            style="display:none;"
     >
 
-        <form>
 
-            <select class="form-control" name='type' id="type"
-                    onchange="ajax_getSelectedData(this.form,'getSelectedData')">
-                <option selected value="-1">Не выбрано</option>
-                <option value="1"
-                >Категории
-                </option>
-
-                <option value="2"
-                >Цвет
-                </option>
-
-                <option value="3"
-                >Пол
-                </option>
-                                <option value="4"
-                >Страна
-                </option>
-
-
-            </select>
-
-            <select class="form-control" name='second' id="second">
-
-            </select>
-        </form>
+<div class="input-group">
+    <span class="input-group-text">Количество</span>
+    <input type="text" name="tovar_count" id="tovar_count"
+           class="form-control" value="100">
+</div>
+<div class="input-group">
+    <span class="input-group-text">Цена</span>
+    <input type="text" name="tovar_cost" id="tovar_cost"
+           class="form-control" value="100">
+</div>
 
     </div>
 
