@@ -19,7 +19,7 @@
                 .done(function (data) {
 
                     if (data.error) {
-                                                console.log("221")
+                        console.log("221")
 
                         {#$('#errorAlert').text(data.error).show();#}
                         {#$('#successAlert').hide();#}
@@ -46,21 +46,8 @@
     <div class="container">
         <h1>О системе</h1>
         <p>Система разрабатывается в рамках учебного проекта</p>
-        <div
-                style="display: none;"
-        >
-
-            <input id='date' name='date' type="date">
-            <INPUT id='state' type='button' value='Извлечь данные' onclick="extract()"/>
-            <INPUT id='state' type='button' value='Удалить данные' onclick='dextract()'/>
-            <INPUT id='state' type='button' value='Данные' onclick="ajax_getdata(this.form,'getData');"/>
-
-
-            <table id="mytable">
-
-            </table>
-
-        </div>
 
     </div>
 {% endblock %}
+
+

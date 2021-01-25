@@ -80,9 +80,15 @@
         {% endif %})</a>
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
+            <a class="nav-link" href="{{ url_for('search') }}">Поиск</a>
+        </li>
+    </ul>
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
             <a class="nav-link" href="{{ url_for('about') }}">О системе</a>
         </li>
     </ul>
+
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
             <a class="nav-link" href="{{ url_for('logout') }}">Выйти</a>
@@ -160,6 +166,7 @@
                         Заказы
                     </a>
                 </li>
+
             </ul>
             {% if current_user.type == 0 %}
 
