@@ -88,7 +88,12 @@ def about():
 @app.route('/search')
 @login_required
 def search():
-    return render_template('search.html')
+    categories = Kategorya.query.order_by(Kategorya.id).all()
+    colors = Kategorya.query.order_by(Kategorya.id).all()
+    sex = Kategorya.query.order_by(Kategorya.id).all()
+    country = Kategorya.query.order_by(Kategorya.id).all()
+
+    return render_template('search.html', categories=categories)
 
 
 # страница "О нас"
@@ -96,36 +101,6 @@ def search():
 @login_required
 def profile():
     items = Magazin.query.filter_by(user_id=current_user.id).all()
-
-    # # если преподаватель то выполняется следующий участок кода
-    # if current_user.type == 1:
-    #     # вытаскиваем текущего преподавателя
-    #     teacher = Teacher.query.get(current_user.id)
-    #     disciplines = Discipline.query.filter_by(teacher_id=teacher.id).all()
-    #
-    #     # пакуем все в словарь из двух переменных
-    #     data = {
-    #         'teacher': teacher,
-    #         'disciplines': disciplines
-    #     }
-    #
-    # # если студент, то выполняется следующий участок кода
-    # if current_user.type == 2:
-    #
-    #     # вытаскиваем текущего студента
-    #     student = Student.query.get(current_user.id)
-    #
-    #     disciplines = []
-    #
-    #     # вытаскиваем его дисциплины
-    #     for discipline_id in str(student.group.disciplines).split(' '):
-    #         disciplines.append(Discipline.query.get(discipline_id))
-    #
-    #     # пакуем все в словарь из двух переменных
-    #     data = {
-    #         'student': student,
-    #         'disciplines': disciplines
-    #     }
 
     # инициализация данных
     password = request.form.get('inputPassword')
@@ -784,20 +759,58 @@ def edit_order_status_ajax():
         return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
 
 
-# адрес для ajax запроса изменения товара
+# адрес для ajax запроса поиска
 @app.route('/getData', methods=['POST'])
 def get_data_ajax():
     search = request.form.get("search")
-    items = Tovar.query.filter_by(name=search).all()
+    type = request.form.get("type")
+    second = request.form.get("second")
 
     print(request.form)
-    buffer = []
+    items = Tovar.query.filter_by(name=search).all()
 
+    if type == '1':
+        items = Tovar.query.filter_by(name=search).filter_by(category_id=second).all()
+
+    elif type == '2':
+        items = Tovar.query.filter_by(name=search).filter_by(cvet=second).all()
+
+    elif type == '3':
+        items = Tovar.query.filter_by(name=search).filter_by(sex=second).all()
+    elif type == '4':
+        items = Tovar.query.filter_by(name=search).filter_by(strana=second).all()
+
+    buffer = []
     for i in items:
         buffer.append(getHtmlTovar(i))
 
     try:
 
+        return jsonify({'success': buffer})
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Что то пошло не так, попробуйте позже'})
+
+
+# адрес для ajax запроса изменения товара
+@app.route('/getSelectedData', methods=['POST'])
+def get_selected_data_ajax():
+    type = request.form.get("type")
+    print(request.form)
+    items = []
+
+    if type == '1':
+        items = Kategorya.query.all()
+    elif type == '2':
+        items = Color.query.all()
+    elif type == '3':
+        items = Sex.query.all()
+    elif type == '4':
+        items = Country.query.all()
+    buffer = []
+    for i in items:
+        buffer.append(F'value="{i.id}">'+i.name)
+    try:
         return jsonify({'success': buffer})
     except Exception as e:
         print(e)
@@ -825,7 +838,7 @@ def getHtmlTovar(el):
            f'{el.country.name}</strong><h3 class="mb-0">' + \
            f'{el.name}</h3><div class="mb-1 text-muted">' \
            f'{el.sex_name.name} {el.color.name}' + \
-           f'Стандарт: {el.size.size_category.name} {el.size.name}</div><p class="card-text mb-auto">' + \
+           f' Стандарт: {el.size.size_category.name} {el.size.name}</div><p class="card-text mb-auto">' + \
            f'{el.opisanie}</p><p class="card-text mb-auto">' + \
            f'Категория: {el.category.name}</p></form> </div><div class="col-auto d-none d-lg-block"><img ' + \
            f'src="{el.picture}" width="200" height="250"></div></div></div> '

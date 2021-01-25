@@ -9,7 +9,7 @@
 
     <script type='text/javascript'>
 
-        function ajax_getdata(form, processUrl) {
+        function ajax_getSelectedData(form, processUrl) {
             $.ajax(
                 {
                     data: $(form).serialize(),
@@ -19,26 +19,22 @@
                 .done(function (data) {
 
                     if (data.error) {
-                        console.log("221")
 
                         {#$('#errorAlert').text(data.error).show();#}
                         {#$('#successAlert').hide();#}
                     } else {
-                        console.log("123")
-                        var Table = document.getElementById("mytable");
+                        var select = document.getElementById("second");
                         buffer = ""
                         for (var i = 0; i < data.success.length; i++) {
                             console.log(data.success[i])
-
-                            buffer = buffer + "<tr><td>" + data.success[i] + "</td></tr>";
+                            buffer = buffer + "<option>" + data.success[i] + "</option>";
                         }
-                        Table.innerHTML = buffer
-
+                        select.innerHTML = buffer
                     }
-
                 });
             event.preventDefault();
         }
+
     </script>
 {% endblock %}
 
@@ -48,6 +44,40 @@
         <p>Система разрабатывается в рамках учебного проекта</p>
 
     </div>
+    <div
+            {#    style="display:none;"#}
+    >
+
+        <form>
+
+            <select class="form-control" name='type' id="type"
+                    onchange="ajax_getSelectedData(this.form,'getSelectedData')">
+                <option selected value="-1">Не выбрано</option>
+                <option value="1"
+                >Категории
+                </option>
+
+                <option value="2"
+                >Цвет
+                </option>
+
+                <option value="3"
+                >Пол
+                </option>
+                                <option value="4"
+                >Страна
+                </option>
+
+
+            </select>
+
+            <select class="form-control" name='second' id="second">
+
+            </select>
+        </form>
+
+    </div>
+
 {% endblock %}
 
 

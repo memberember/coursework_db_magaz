@@ -46,6 +46,39 @@
                 });
             event.preventDefault();
         }
+
+        function ajax_getSelectedData(form, processUrl) {
+            $.ajax(
+                {
+                    data: $(form).serialize(),
+                    type: 'POST',
+                    url: '/' + processUrl
+                })
+                .done(function (data) {
+
+                    if (data.error) {
+
+                        {#$('#errorAlert').text(data.error).show();#}
+                        {#$('#successAlert').hide();#}
+                    } else {
+                        var select = document.getElementById("second");
+
+                        if (data.success.length > 0) {
+
+                            buffer = ""
+                            for (var i = 0; i < data.success.length; i++) {
+                                console.log(data.success[i])
+                                buffer = buffer + "<option " + data.success[i] + "</option>";
+                            }
+                            select.innerHTML = buffer
+                        } else {
+                            select.innerHTML = ''
+                        }
+                    }
+                });
+            event.preventDefault();
+        }
+
     </script>
 {% endblock %}
 
@@ -60,6 +93,27 @@
                 <input type="text" class="form-control" name="search" id="search"
                        placeholder="Введите имя товара"
                        value=''>
+
+                    <select class="form-control" name='type' id="type"
+                            onchange="ajax_getSelectedData(this.form,'getSelectedData')">
+                        <option selected value="-1">Не выбрано</option>
+                        <option value="1"
+                        >Категории
+                        </option>
+                        <option value="2"
+                        >Цвет
+                        </option>
+                        <option value="3"
+                        >Пол
+                        </option>
+                        <option value="4"
+                        >Страна
+                        </option>
+                    </select>
+                    <select class="form-control" name='second' id="second">
+                    </select>
+
+
                 <button onclick="ajax_getdata(this.form,'getData');"
                         class="btn btn-outline-secondary" type="button" id="button-addon2">
                     Поиск
