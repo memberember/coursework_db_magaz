@@ -1,338 +1,601 @@
-<!--index-->
+<!--about-->
 
 {% extends 'base.html' %}
 
 {% block title %}
-    <title>Список товаров</title>
+    <title>Поиск</title>
+
+
+
+    <script type='text/javascript'>
+
+        function ajax_getdata(form, processUrl) {
+            $.ajax(
+                {
+                    data: $(form).serialize(),
+                    type: 'POST',
+                    url: '/' + processUrl
+                })
+                .done(function (data) {
+
+                    if (data.error) {
+                        console.log("error")
+
+                        {#$('#errorAlert').text(data.error).show();#}
+                        {#$('#successAlert').hide();#}
+                    } else {
+                        var Table = document.getElementById("mytable");
+                        buffer = ""
+                        if (data.success.length > 0) {
+                            $('#errorAlert').text(data.error).hide();
+
+                            $('#search_results').show();
+
+                            for (var i = 0; i < data.success.length; i++) {
+                                console.log(data.success[i])
+
+                                buffer = buffer + "<tr><td>" + data.success[i] + "</td></tr>";
+                            }
+                            Table.innerHTML = buffer
+                        } else {
+                            $('#search_results').hide();
+                            $('#errorAlert').text('Нет результатов').show();
+                        }
+                    }
+
+                });
+            event.preventDefault();
+        }
+
+        function ajax_getSelectedData(form, processUrl) {
+            $.ajax(
+                {
+                    data: $(form).serialize(),
+                    type: 'POST',
+                    url: '/' + processUrl
+                })
+                .done(function (data) {
+
+                    if (data.error) {
+
+                        {#$('#errorAlert').text(data.error).show();#}
+                        {#$('#successAlert').hide();#}
+                    } else {
+                        var select = document.getElementById("second");
+
+                        if (data.success.length > 0) {
+
+                            buffer = ""
+                            for (var i = 0; i < data.success.length; i++) {
+                                console.log(data.success[i])
+                                buffer = buffer + "<option " + data.success[i] + "</option>";
+                            }
+                            select.innerHTML = buffer
+                        } else {
+                            select.innerHTML = ''
+                        }
+                    }
+                });
+            event.preventDefault();
+        }
+
+    </script>
 {% endblock %}
 
-
-
-{#Контент администратора#}
-{% block admin %}
-    <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
-    <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+{% block buyer %}
     <div class="container">
-        <table class="table table-sm">
-            <form>
-                <h3>Режим работы с товарами</h3><br>
-                <h6>Новый товар</h6>
-                <tr>
 
-                    <td>
-                        <div class="input-group">
+        <form>
 
-                            <label class="input-group-text" for="inputGroupSelect01">Название</label>
+            <div class="input-group">
 
-                            <input type="text" class="form-control" name="name" id="name"
-                                   placeholder="Название"
-                                   value=''>
+
+                <input type="text" class="form-control" name="search" id="search"
+                       placeholder="Введите имя товара"
+                       value=''>
+
+                <select class="form-control" name='type' id="type"
+                        onchange="ajax_getSelectedData(this.form,'getSelectedData')">
+                    <option selected value="-1">Не выбрано</option>
+                    <option value="1"
+                    >Категории
+                    </option>
+                    <option value="2"
+                    >Цвет
+                    </option>
+                    <option value="3"
+                    >Пол
+                    </option>
+                    <option value="4"
+                    >Страна
+                    </option>
+                </select>
+                <select class="form-control" name='second' id="second">
+                </select>
+
+
+                <button onclick="ajax_getdata(this.form,'getData');"
+                        class="btn btn-outline-secondary" type="button" id="button-addon2">
+                    Поиск
+                </button>
+            </div>
+        </form>
+
+        <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+        <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+
+
+        <div class="album py-5 bg-light" ID="search_results"
+                {#             style="display: none;"#}
+
+        >
+            <div class="container"><h4 class="mb-3">Список товаров: </h4></div>
+            <div class="container">
+                <div id="mytable" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+                    {% for el in data %}
+                        <div class="col-md-6">
+                            <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                                <div class="col p-4 d-flex flex-column position-static">
+                                    <form id='{{ el.id }}'>
+                                        <strong class="d-inline-block mb-2 text-primary">{{ el.country.name }}</strong>
+                                        <h3 class="mb-0">{{ el.name }}</h3>
+                                        <div class="mb-1 text-muted">{{ el.sex_name.name }} {{ el.color.name }}.
+                                            Стандарт: {{ el.size.size_category.name }} {{ el.size.name }}</div>
+                                        <p class="card-text mb-auto">{{ el.opisanie }}</p>
+                                        <p class="card-text mb-auto">Категория: {{ el.category.name }}</p>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group">
+                                                <select name="magazinhastovar_id" id="magazinhastovar_id"
+                                                        class="form-control">
+                                                    {% for mag in magazinhastovar %}
+                                                        {% if mag.tovar_id == el.id %}
+                                                            <option value="{{ mag.id }}">{{ mag.magazin.name }}
+                                                                Осталось: {{ mag.count }}шт. {{ mag.cost }}₽
+                                                            </option>
+                                                        {% endif %}
+
+                                                    {% endfor %}
+                                                </select>
+                                                <button onclick="ajax_fun(this.form,'addOrder');"
+                                                        class="btn btn-outline-secondary" type="button"
+                                                        id="button-addon2">
+                                                    Заказать
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-auto d-none d-lg-block">
+                                    <img src="{{ el.picture }}" width="200" height="250">
+
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
-                    </td>
+                    {% endfor %}
 
-                    <td>
-                        <div class="input-group">
-                            <label class="input-group-text" for="inputGroupSelect01">Цвет</label>
-                            <select name="cvet" id="cvet" class="form-control">
-
-                                {% for color in colors %}
-                                    <option value="{{ color.id }}"
-
-                                    > {{ color.name }}</option>
-
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <div class="input-group">
-                            <label class="input-group-text" for="inputGroupSelect01">Страна</label>
-                            <select name="strana" id="strana" class="form-control">
-
-                                {% for country in countries %}
-                                    <option value="{{ country.id }}"
-                                    > {{ country.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-
-                    </td>
-
-                    <td>
-                        <div class="input-group">
-                            <label class="input-group-text" for="inputGroupSelect01">Размер</label>
-                            <select name="razmer" id="razmer" class="form-control">
-
-                                {% for size in sizes %}
-                                    <option value="{{ size.id }}"
-                                    >Стандарт: {{ size.size_category.name }} {{ size.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-
-                    <td>
-                        <div class="input-group">
-                            <label class="input-group-text" for="inputGroupSelect01">Картинка</label>
-                            <input type="text" class="form-control" name="picture" id="picture"
-                                   placeholder="Ссылка на изображение"
-                                   value=''></div>
-                    </td>
-
-                    <td>
-                        <div class="input-group">
-                            <label class="input-group-text" for="inputGroupSelect01">Пол</label>
-                            <select name="sex" id="sex" class="form-control">
-                                <option value="2">Для мужчин</option>
-                                <option value="1" selected>Для женщин</option>
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <input type="text" class="form-control" name="opisanie" id="opisanie" placeholder="Описание"
-                               value=''>
-                    </td>
-
-                    <td>
-
-                        <div class="input-group">
-                            <label class="input-group-text" for="inputGroupSelect01">Категория</label> <select
-                                class="form-control" name='category_id' id="category_id">
-
-                            {% for cat in categories %}
-                                <option value="{{ cat.id }}"
-                                >{{ cat.name }}</option>
-
-                            {% endfor %}
-                        </select>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-
-                    <td colspan="2">
-
-                        {#Кнопки редактирования#}
-                        <button class="btn btn-lg btn-primary btn-block" onclick="ajax_fun(this.form,'addTovar');">
-                            Добавить
-                        </button>
-                    </td>
-                </tr>
-            </form>
-        </table>
-    </div>
-
-    <div class="container">
-        <h4 class="mb-3">Список товаров: </h4>
-
-
-        {% for el in data %}
-            <div class="">
-
-                <div name='tr{{ el.id }}' class="">
-
-
-                    <div id='tr{{ el.id }}'
-                         class="row border rounded flex-md-row mb-4 ">
-                        <div class="col p-4">
-                            <form id='{{ el.id }}'>
-                                <input type="hidden" name="tovar_id" id="tovar_id" value='{{ el.id }}' id="minput"/>
-
-                                <div class="input-group">
-                                    <span class="input-group-text">Название</span>
-                                    <input type="text" name="tovar_name" id="tovar_name" aria-label="Название"
-                                           class="form-control" value="{{ el.name }}">
-                                </div>
-
-                                <div class="input-group">
-                                    <label class="input-group-text" for="inputGroupSelect01">Цвет</label>
-                                    <select name="cvet" id="cvet" class="form-control">
-
-                                        {% for color in colors %}
-                                            <option value="{{ color.id }}"
-                                                    {% if el.cvet == color.id %}
-                                                    selected
-                                                    {% endif %}
-                                            > {{ color.name }}</option>
-
-                                        {% endfor %}
-                                    </select>
-                                </div>
-
-                                <div class="input-group">
-                                    <label class="input-group-text" for="inputGroupSelect01">Страна</label>
-                                    <select name="strana" id="strana" class="form-control">
-
-                                        {% for country in countries %}
-                                            <option value="{{ country.id }}"
-                                                    {% if el.strana == country.id %}
-                                                    selected
-                                                    {% endif %}
-                                            > {{ country.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-
-                                <div class="input-group">
-                                    <label class="input-group-text" for="inputGroupSelect01">Размер</label>
-                                    <select name="razmer" id="razmer" class="form-control">
-
-                                        {% for size in sizes %}
-                                            <option value="{{ size.id }}"
-                                                    {% if el.razmer == size.id %}
-                                                    selected
-                                                    {% endif %}
-                                            >Стандарт: {{ size.size_category.name }} {{ size.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-
-                                <div class="input-group">
-                                    <label class="input-group-text" for="inputGroupSelect01">Категория</label>
-                                    <select name="category_id" id="category_id" class="form-control">
-                                        {% for cat in categories %}
-                                            <option value="{{ cat.id }}"
-                                                    {% if el.category_id == cat.id %}
-                                                    selected
-                                                    {% endif %}
-                                            >{{ cat.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-
-                                <div class="input-group">
-                                    <span class="input-group-text">Изображение</span>
-                                    <input type="text" name="picture" id="picture" aria-label="Размер"
-                                           class="form-control"
-                                           value="{{ el.picture }}">
-                                </div>
-
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="opisanie" id="opisanie"
-                                           placeholder="Описание"
-                                           value="{{ el.opisanie }}">
-                                </div>
-
-                                <div class="form-check form-check-inline">
-                                    <input
-                                            {% if el.sex == 2 %}
-                                                checked
-                                            {% endif %}
-                                                class="form-check-input" type="radio" name="sex"
-                                                id="sex" value="2">
-                                    <label class="form-check-label" for="inlineRadio1">Для мужчин</label>
-                                </div>
-
-                                <div class="form-check form-check-inline">
-                                    <input
-                                            {% if el.sex == 1 %}
-                                                checked
-                                            {% endif %}
-                                                class="form-check-input" type="radio" name="sex"
-                                                id="inlineRadio2" value="1">
-                                    <label class="form-check-label" for="inlineRadio2">Для женщин</label>
-                                </div>
-
-                                <div class="d-grid gap-2 d-md-block">
-                                    <button type="button" class="btn btn-outline-success"
-                                            onclick="ajax_fun(this.form,'editTovar');">Сохранить
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger"
-                                            onclick="ajax_delete(this.form,'deleteTovar')">Удалить
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="col-auto d-none d-lg-block">
-                            <img src="{{ el.picture }}" width="280" height="350">
-                            </svg>
-                        </div>
-                    </div>
                 </div>
             </div>
+        </div>
 
-        {% endfor %}
+    </div>
+
     </div>
 {% endblock %}
 
 
-{#Контент хозяина#}
 {% block owner %}
-    <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
-    <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
-    <div class="album py-5 bg-light">
-        <div class="container">
-            <h4 class="mb-3">Список товаров: </h4>
-        </div>
+    <div class="container">
 
-        <div class="container">
+        <form>
 
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            <div class="input-group">
 
-                {% for el in data %}
-                    <div class="col-md-6">
-                        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-                            <div class="col p-4 d-flex flex-column position-static">
-                                <form id='{{ el.id }}'>
-                                    <strong class="d-inline-block mb-2 text-primary">{{ el.country.name }}</strong>
-                                    <h3 class="mb-0">{{ el.name }}</h3>
-                                    <div class="mb-1 text-muted">{{ el.sex_name.name }} {{ el.color.name }} {{ el.size.name }}</div>
-                                    <p class="card-text mb-auto">{{ el.opisanie }}</p>
-                                    <p class="card-text mb-auto">Категория: {{ el.category.name }}</p>
 
-                                    <input type="hidden" name="tovar_id" id="tovar_id"
-                                           value='{{ el.id }}'/>
-                                    <div class="input-group">
-                                        <span class="input-group-text">Количество</span>
-                                        <input type="text" name="tovar_count" id="tovar_count"
-                                               class="form-control" value="100">
-                                    </div>
-                                    <div class="input-group">
+                <input type="text" class="form-control" name="search" id="search"
+                       placeholder="Введите имя товара"
+                       value=''>
 
-                                        <span class="input-group-text">Цена</span>
-                                        <input type="text" name="tovar_cost" id="tovar_cost"
-                                               class="form-control" value="100">
-                                    </div>
-                                    <div class="input-group">
-                                        <select name="magazin_id" id="magazin_id" class="form-control">
+                <select class="form-control" name='type' id="type"
+                        onchange="ajax_getSelectedData(this.form,'getSelectedData')">
+                    <option selected value="-1">Не выбрано</option>
+                    <option value="1"
+                    >Категории
+                    </option>
+                    <option value="2"
+                    >Цвет
+                    </option>
+                    <option value="3"
+                    >Пол
+                    </option>
+                    <option value="4"
+                    >Страна
+                    </option>
+                </select>
+                <select class="form-control" name='second' id="second">
+                </select>
 
-                                            {% for mag in magazins %}
-                                                <option value="{{ mag.id }}">{{ mag.name }}</option>
 
-                                            {% endfor %}
-                                        </select>
-                                        <button class="btn btn-outline-secondary"
-                                                onclick="ajax_fun(this.form,'forkTovar');"
-                                                type="button" id="button-addon2">
-                                            Форкнуть
-                                        </button>
-                                    </div>
-                                </form>
+                <button onclick="ajax_getdata(this.form,'getData');"
+                        class="btn btn-outline-secondary" type="button" id="button-addon2">
+                    Поиск
+                </button>
+            </div>
+        </form>
 
-                            </div>
-                            <div class="col-auto d-none d-lg-block">
-                                <img src="{{ el.picture }}" width="200" height="250">
+        <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+        <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
 
-                                </svg>
+
+        <div class="album py-5 bg-light" ID="search_results"
+                {#             style="display: none;"#}
+
+        >
+            <div class="container"><h4 class="mb-3">Список товаров: </h4></div>
+            <div class="container">
+                <div id="mytable" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+                    {% for el in data %}
+                        <div class="col-md-6">
+                            <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                                <div class="col p-4 d-flex flex-column position-static">
+                                    <form id='{{ el.id }}'>
+                                        <strong class="d-inline-block mb-2 text-primary">{{ el.country.name }}</strong>
+                                        <h3 class="mb-0">{{ el.name }}</h3>
+                                        <div class="mb-1 text-muted">{{ el.sex_name.name }} {{ el.color.name }} Стандарт: {{ el.size.size_category.name }} {{ el.size.name }}</div>
+                                        <p class="card-text mb-auto">{{ el.opisanie }}</p>
+                                        <p class="card-text mb-auto">Категория: {{ el.category.name }}</p>
+
+                                        <input type="hidden" name="tovar_id" id="tovar_id"
+                                               value='{{ el.id }}'/>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Количество</span>
+                                            <input type="text" name="tovar_count" id="tovar_count"
+                                                   class="form-control" value="100">
+                                        </div>
+                                        <div class="input-group">
+
+                                            <span class="input-group-text">Цена</span>
+                                            <input type="text" name="tovar_cost" id="tovar_cost"
+                                                   class="form-control" value="100">
+                                        </div>
+                                        <div class="input-group">
+                                            <select name="magazin_id" id="magazin_id" class="form-control">
+
+                                                {% for mag in magazins %}
+                                                    <option value="{{ mag.id }}">{{ mag.name }}</option>
+
+                                                {% endfor %}
+                                            </select>
+                                            <button class="btn btn-outline-secondary"
+                                                    onclick="ajax_fun(this.form,'forkTovar');"
+                                                    type="button" id="button-addon2">
+                                                Добавить к себе
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                </div>
+                                <div class="col-auto d-none d-lg-block">
+                                    <img src="{{ el.picture }}" width="200" height="250">
+
+                                    </svg>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+
+                </div>
             </div>
         </div>
+
     </div>
 
+    </div>
 {% endblock %}
 
 
+{% block admin %}
+    <div class="container">
 
+        <form>
+
+            <div class="input-group">
+
+
+                <input type="text" class="form-control" name="search" id="search"
+                       placeholder="Введите имя товара"
+                       value=''>
+
+                <select class="form-control" name='type' id="type"
+                        onchange="ajax_getSelectedData(this.form,'getSelectedData')">
+                    <option selected value="-1">Не выбрано</option>
+                    <option value="1"
+                    >Категории
+                    </option>
+                    <option value="2"
+                    >Цвет
+                    </option>
+                    <option value="3"
+                    >Пол
+                    </option>
+                    <option value="4"
+                    >Страна
+                    </option>
+                </select>
+                <select class="form-control" name='second' id="second">
+                </select>
+
+
+                <button onclick="ajax_getdata(this.form,'getData');"
+                        class="btn btn-outline-secondary" type="button" id="button-addon2">
+                    Поиск
+                </button>
+            </div>
+        </form>
+
+        <div id="successAlert" class="alert alert-success" role="alert" style="display:none;"></div>
+        <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+        <div class="container">
+            <table class="table table-sm">
+                <form>
+                    <h3>Режим работы с товарами</h3><br>
+                    <h6>Новый товар</h6>
+                    <tr>
+
+                        <td>
+                            <div class="input-group">
+
+                                <label class="input-group-text" for="inputGroupSelect01">Название</label>
+
+                                <input type="text" class="form-control" name="name" id="name"
+                                       placeholder="Название"
+                                       value=''>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="input-group">
+                                <label class="input-group-text" for="inputGroupSelect01">Цвет</label>
+                                <select name="cvet" id="cvet" class="form-control">
+
+                                    {% for color in colors %}
+                                        <option value="{{ color.id }}"
+
+                                        > {{ color.name }}</option>
+
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="input-group">
+                                <label class="input-group-text" for="inputGroupSelect01">Страна</label>
+                                <select name="strana" id="strana" class="form-control">
+
+                                    {% for country in countries %}
+                                        <option value="{{ country.id }}"
+                                        > {{ country.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+
+                        </td>
+
+                        <td>
+                            <div class="input-group">
+                                <label class="input-group-text" for="inputGroupSelect01">Размер</label>
+                                <select name="razmer" id="razmer" class="form-control">
+
+                                    {% for size in sizes %}
+                                        <option value="{{ size.id }}"
+                                        >Стандарт: {{ size.size_category.name }} {{ size.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+
+                        <td>
+                            <div class="input-group">
+                                <label class="input-group-text" for="inputGroupSelect01">Картинка</label>
+                                <input type="text" class="form-control" name="picture" id="picture"
+                                       placeholder="Ссылка на изображение"
+                                       value=''></div>
+                        </td>
+
+                        <td>
+                            <div class="input-group">
+                                <label class="input-group-text" for="inputGroupSelect01">Пол</label>
+                                <select name="sex" id="sex" class="form-control">
+                                    <option value="2">Для мужчин</option>
+                                    <option value="1" selected>Для женщин</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" name="opisanie" id="opisanie" placeholder="Описание"
+                                   value=''>
+                        </td>
+
+                        <td>
+
+                            <div class="input-group">
+                                <label class="input-group-text" for="inputGroupSelect01">Категория</label> <select
+                                    class="form-control" name='category_id' id="category_id">
+
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}"
+                                    >{{ cat.name }}</option>
+
+                                {% endfor %}
+                            </select>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td colspan="2">
+
+                            {#Кнопки редактирования#}
+                            <button class="btn btn-lg btn-primary btn-block" onclick="ajax_fun(this.form,'addTovar');">
+                                Добавить
+                            </button>
+                        </td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+
+        <div class="album py-5 bg-light" ID="search_results"
+                {#             style="display: none;"#}
+
+        >
+            <div class="container"><h4 class="mb-3">Список товаров: </h4></div>
+            <div class="container">
+                <div id="mytable">
+
+                    {% for el in data %}
+                        <div name='tr{{ el.id }}' class="">
+                            <div id='tr{{ el.id }}'
+                                 class="row border rounded flex-md-row mb-4 ">
+                                <div class="col p-4">
+                                    <form id='{{ el.id }}'>
+                                        <input type="hidden" name="tovar_id" id="tovar_id" value='{{ el.id }}'
+                                               id="minput"/>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">Название</span>
+                                            <input type="text" name="tovar_name" id="tovar_name"
+                                                   aria-label="Название"
+                                                   class="form-control" value="{{ el.name }}">
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="inputGroupSelect01">Цвет</label>
+                                            <select name="cvet" id="cvet" class="form-control">
+
+                                                {% for color in colors %}
+                                                    <option value="{{ color.id }}"
+                                                            {% if el.cvet == color.id %}
+                                                            selected
+                                                            {% endif %}
+                                                    > {{ color.name }}</option>
+
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="inputGroupSelect01">Страна</label>
+                                            <select name="strana" id="strana" class="form-control">
+
+                                                {% for country in countries %}
+                                                    <option value="{{ country.id }}"
+                                                            {% if el.strana == country.id %}
+                                                            selected
+                                                            {% endif %}
+                                                    > {{ country.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="inputGroupSelect01">Размер</label>
+                                            <select name="razmer" id="razmer" class="form-control">
+
+                                                {% for size in sizes %}
+                                                    <option value="{{ size.id }}"
+                                                            {% if el.razmer == size.id %}
+                                                            selected
+                                                            {% endif %}
+                                                    >
+                                                        Стандарт: {{ size.size_category.name }} {{ size.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label class="input-group-text"
+                                                   for="inputGroupSelect01">Категория</label>
+                                            <select name="category_id" id="category_id" class="form-control">
+                                                {% for cat in categories %}
+                                                    <option value="{{ cat.id }}"
+                                                            {% if el.category_id == cat.id %}
+                                                            selected
+                                                            {% endif %}
+                                                    >{{ cat.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">Изображение</span>
+                                            <input type="text" name="picture" id="picture" aria-label="Размер"
+                                                   class="form-control"
+                                                   value="{{ el.picture }}">
+                                        </div>
+
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="opisanie" id="opisanie"
+                                                   placeholder="Описание"
+                                                   value="{{ el.opisanie }}">
+                                        </div>
+
+                                        <div class="form-check form-check-inline">
+                                            <input
+                                                    {% if el.sex == 2 %}
+                                                        checked
+                                                    {% endif %}
+                                                        class="form-check-input" type="radio" name="sex"
+                                                        id="sex" value="2">
+                                            <label class="form-check-label" for="inlineRadio1">Для мужчин</label>
+                                        </div>
+
+                                        <div class="form-check form-check-inline">
+                                            <input
+                                                    {% if el.sex == 1 %}
+                                                        checked
+                                                    {% endif %}
+                                                        class="form-check-input" type="radio" name="sex"
+                                                        id="inlineRadio2" value="1">
+                                            <label class="form-check-label" for="inlineRadio2">Для женщин</label>
+                                        </div>
+
+                                        <div class="d-grid gap-2 d-md-block">
+                                            <button type="button" class="btn btn-outline-success"
+                                                    onclick="ajax_fun(this.form,'editTovar');">Сохранить
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger"
+                                                    onclick="ajax_delete(this.form,'deleteTovar')">Удалить
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-auto d-none d-lg-block">
+                                    <img src="{{ el.picture }}" width="280" height="350">
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    </div>
+{% endblock %}

@@ -84,10 +84,10 @@ def about():
     return render_template('about.html')
 
 
-# страница "Поиск"
-@app.route('/search')
+# страница "Товаров"
+@app.route('/tovar_list')
 @login_required
-def search():
+def tovar_list():
     magazins = Magazin.query.filter_by(user_id=current_user.id).all()
     magazinhastovar = Magazinhastovar.query.all()
     items = Tovar.query.order_by(Tovar.id.desc()).limit(50).all()
@@ -96,7 +96,7 @@ def search():
     colors = Color.query.all()
 
     categories = Kategorya.query.order_by(Kategorya.id).all()
-    return render_template('search.html',
+    return render_template('tovar_list.html',
                            data=items,
                            categories=categories,
                            magazins=magazins,
@@ -289,29 +289,6 @@ def orders():
     items = Zakaz.query.order_by(Zakaz.id).all()
     order_status = OrderStatus.query.order_by(OrderStatus.id).all()
     return render_template('orders.html', data=items, order_status=order_status)
-
-
-# страница товаров
-@app.route('/tovar_list')
-@login_required
-def tovar_list():
-    magazins = Magazin.query.filter_by(user_id=current_user.id).all()
-    magazinhastovar = Magazinhastovar.query.all()
-    items = Tovar.query.order_by(Tovar.id.desc()).limit(50).all()
-    countries = Country.query.all()
-    sizes = Size.query.all()
-    colors = Color.query.all()
-
-    categories = Kategorya.query.order_by(Kategorya.id).all()
-    return render_template('tovar_list.html',
-                           data=items,
-                           categories=categories,
-                           magazins=magazins,
-                           magazinhastovar=magazinhastovar,
-                           countries=countries,
-                           sizes=sizes,
-                           colors=colors
-                           )
 
 
 # адрес для ajax запроса изменения пользователя
