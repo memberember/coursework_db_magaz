@@ -111,6 +111,7 @@ def get_report_ajax():
         items = Zakaz.query.order_by(Zakaz.time).all()
         buffer = []
         sum = 0
+        count = 0
         for i in items:
             if i.magazinhastovar.magazin_id == int(magaz):
 
@@ -125,6 +126,7 @@ def get_report_ajax():
                           f'<td>{i.magazinhastovar.magazin.name}</td>' + \
                           f'<td>{i.order_status.name}</td>'
                     sum += i.magazinhastovar.cost
+                    count+=1
                     buffer.append(buf)
         header = f'<th>Фото</th>'
         header += f'<th>Время</th>'
@@ -133,7 +135,7 @@ def get_report_ajax():
         header += f'<th>Адрес</th>'
         header += f'<th>Номер</th>'
         header += f'<th>Товар</th>'
-        header += f'<th>Магазин</th>'
+        header += f'<th>Магазин(Заказов:{count})</th>'
         header += f'<th>Статус заказа</th>'
         buffer.insert(0, header)
         return jsonify({'success': buffer})
@@ -1053,4 +1055,4 @@ def get_html_tovar_admin(el):
     return buf
 
 # todo
-# Фильтрация по нескольким атрибутам.
+# Фильтрация по нескольким атрибутам (2).
