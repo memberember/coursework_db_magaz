@@ -17,9 +17,7 @@
                     url: '/' + processUrl
                 })
                 .done(function (data) {
-
                     if (data.error) {
-
                         $('#errorAlert').text(data.error).show();
                         $('#successAlert').hide();
                     } else {
@@ -27,12 +25,9 @@
                         buffer = ""
                         if (data.success.length > 0) {
                             $('#errorAlert').text(data.error).hide();
-
                             $('#search_results').show();
-
                             for (var i = 0; i < data.success.length; i++) {
                                 console.log(data.success[i])
-
                                 buffer = buffer + "<tr>" + data.success[i] + "</tr>";
                             }
                             Table.innerHTML = buffer
@@ -41,7 +36,6 @@
                             $('#errorAlert').text('Нет результатов').show();
                         }
                     }
-
                 });
             event.preventDefault();
         }
@@ -58,6 +52,14 @@
             <div class="input-group">
                 <select class="form-control" name='magaz' id="magaz">
                     {% for el in magazins %}
+                        <option value="{{ el.id }}">{{ el.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <select class="form-control" name='status' id="status">
+                    <option value="0" selected>Все статусы</option>
+
+                    {% for el in order_statuses %}
                         <option value="{{ el.id }}">{{ el.name }}</option>
                     {% endfor %}
                 </select>

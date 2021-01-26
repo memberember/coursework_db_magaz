@@ -8,8 +8,6 @@ from sweater import app, db
 from sweater.models import User, Zakaz, Magazin, Tovar, Kategorya, Magazinhastovar, Country, Color, SizeCategory, Sex, \
     Size, OrderStatus
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -89,7 +87,8 @@ def about():
 @login_required
 def report():
     magazins = Magazin.query.filter_by(user_id=current_user.id).all()
-    return render_template('report.html', magazins=magazins)
+    order_statuses = OrderStatus.query.all()
+    return render_template('report.html', magazins=magazins,order_statuses=order_statuses)
 
 
 def str_to_timestamp(string):
@@ -106,9 +105,15 @@ def get_report_ajax():
     first_date = request.form.get('first_date')
     second_date = request.form.get('second_date')
     magaz = request.form.get('magaz')
+    status = request.form.get('status')
 
     try:
-        items = Zakaz.query.order_by(Zakaz.time).all()
+        if status!='0':
+            print('not null')
+            items = Zakaz.query.order_by(Zakaz.time).filter_by(status=status).all()
+        else:
+            items = Zakaz.query.order_by(Zakaz.time).all()
+
         buffer = []
         sum = 0
         count = 0
@@ -168,10 +173,12 @@ def tovar_list():
                            )
 
 
-# страница "О нас"
+# страница "Профиль"
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+
+    # запрос в бд через SQLAlchemy
     items = Magazin.query.filter_by(user_id=current_user.id).all()
 
     # инициализация данных
