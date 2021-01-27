@@ -78,15 +78,6 @@
             Посетитель
         {% endif %})</a>
 
-    {% if current_user.type==1 %}
-        <ul class="navbar-nav px-3">
-            <li class="nav-item text-nowrap">
-                <a class="nav-link" href="{{ url_for('report') }}">Отчеты</a>
-            </li>
-        </ul>
-    {% endif %}
-
-
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
             <a class="nav-link" href="{{ url_for('about') }}">О системе</a>

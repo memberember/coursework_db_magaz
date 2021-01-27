@@ -83,12 +83,13 @@ def about():
 
 
 # страница "О нас"
-@app.route('/report')
+@app.route('/orders')
 @login_required
-def report():
+def orders():
     magazins = Magazin.query.filter_by(user_id=current_user.id).all()
     order_statuses = OrderStatus.query.all()
-    return render_template('report.html', magazins=magazins,order_statuses=order_statuses)
+    items = Zakaz.query.all()
+    return render_template('report.html', magazins=magazins, order_statuses=order_statuses, data=items)
 
 
 def str_to_timestamp(string):
@@ -102,14 +103,15 @@ def str_to_timestamp(string):
 @login_required
 def get_report_ajax():
     print(request.form)
+    order_statuses = OrderStatus.query.all()
+
     first_date = request.form.get('first_date')
     second_date = request.form.get('second_date')
     magaz = request.form.get('magaz')
     status = request.form.get('status')
 
     try:
-        if status!='0':
-            print('not null')
+        if status != '0':
             items = Zakaz.query.order_by(Zakaz.time).filter_by(status=status).all()
         else:
             items = Zakaz.query.order_by(Zakaz.time).all()
@@ -118,8 +120,7 @@ def get_report_ajax():
         sum = 0
         count = 0
         for i in items:
-            if i.magazinhastovar.magazin_id == int(magaz):
-
+            if current_user.type == 0:
                 if (str_to_timestamp(first_date) <= str_to_timestamp(i.time) <= str_to_timestamp(second_date)):
                     buf = f'<td><img src = "{i.magazinhastovar.tovar.picture}" width = "40" height = "50"></td>' + \
                           f'<td>{i.time}</td>' + \
@@ -128,11 +129,70 @@ def get_report_ajax():
                           f'<td>{i.user.adress}</td>' + \
                           f'<td>{i.user.phone}</td>' + \
                           f'<td>{i.magazinhastovar.tovar.name}</td>' + \
-                          f'<td>{i.magazinhastovar.magazin.name}</td>' + \
-                          f'<td>{i.order_status.name}</td>'
+                          f'<td>{i.magazinhastovar.magazin.name}</td>'
+
+                    # category
+                    buf += '<td><select ' + \
+                           'name = "order_status" id = "order_status" class ="form-control">'
+                    for status in order_statuses:
+                        buf += f'<option value = "{status.id}"'
+                        if i.status == status.id:
+                            buf += 'selected'
+                        buf += f'>{status.name}</option>'
+                    buf += '</select></td>'
+                    buf += '<input type="hidden" name="order_id" id="order_id" value=' + f"'{i.id}'" + '/>'
+                    buf += '<td><button onclick = "ajax_fun(this.form,' + "'editOrderStatus'" + ');" class ="btn btn-outline-success" type="button" id="button-addon2">Сохранить</button></td>'
                     sum += i.magazinhastovar.cost
-                    count+=1
+                    count += 1
                     buffer.append(buf)
+            if current_user.type == 1:
+                if i.magazinhastovar.magazin_id == int(magaz):
+
+                    if (str_to_timestamp(first_date) <= str_to_timestamp(i.time) <= str_to_timestamp(second_date)):
+                        buf = f'<td><img src = "{i.magazinhastovar.tovar.picture}" width = "40" height = "50"></td>' + \
+                              f'<td>{i.time}</td>' + \
+                              f'<td>{i.magazinhastovar.cost}</td>' + \
+                              f'<td>{i.user.fio}</td>' + \
+                              f'<td>{i.user.adress}</td>' + \
+                              f'<td>{i.user.phone}</td>' + \
+                              f'<td>{i.magazinhastovar.tovar.name}</td>' + \
+                              f'<td>{i.magazinhastovar.magazin.name}</td>'
+
+                        # category
+                        buf += '<td><select ' + \
+                               'name = "order_status" id = "order_status" class ="form-control">'
+                        for status in order_statuses:
+                            buf += f'<option value = "{status.id}"'
+                            if i.status == status.id:
+                                buf += 'selected'
+                            buf += f'>{status.name}</option>'
+                        buf += '</select></td>'
+
+                        buf += '<input type="hidden" name="order_id" id="order_id" value=' + f"'{i.id}'" + '/>'
+                        buf += '<td><button onclick = "ajax_fun(this.form,' + "'editOrderStatus'" + ');" class ="btn btn-outline-success" type="button" id="button-addon2">Сохранить</button></td>'
+
+                        sum += i.magazinhastovar.cost
+                        count += 1
+                        buffer.append(buf)
+            elif current_user.type == 2:
+                if i.user.id == current_user.id:
+
+                    if (str_to_timestamp(first_date) <= str_to_timestamp(i.time) <= str_to_timestamp(second_date)):
+                        buf = f'<td><img src = "{i.magazinhastovar.tovar.picture}" width = "40" height = "50"></td>' + \
+                              f'<td>{i.time}</td>' + \
+                              f'<td>{i.magazinhastovar.cost}</td>' + \
+                              f'<td>{i.user.fio}</td>' + \
+                              f'<td>{i.user.adress}</td>' + \
+                              f'<td>{i.user.phone}</td>' + \
+                              f'<td>{i.magazinhastovar.tovar.name}</td>' + \
+                              f'<td>{i.magazinhastovar.magazin.name}</td>' + \
+                              f'<td>{i.order_status.name}</td>'
+
+                        buf += '<input type="hidden" name="order_id" id="order_id" value=' + f"'{i.id}'" + '/>'
+
+                        sum += i.magazinhastovar.cost
+                        count += 1
+                        buffer.append(buf)
         header = f'<th>Фото</th>'
         header += f'<th>Время</th>'
         header += f'<th>Цена(Сумма:{sum})</th>'
@@ -142,6 +202,9 @@ def get_report_ajax():
         header += f'<th>Товар</th>'
         header += f'<th>Магазин(Заказов:{count})</th>'
         header += f'<th>Статус заказа</th>'
+
+        if current_user.type == 1:
+            header += f'<th></th>'
         buffer.insert(0, header)
         return jsonify({'success': buffer})
     except Exception as e:
@@ -177,7 +240,6 @@ def tovar_list():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-
     # запрос в бд через SQLAlchemy
     items = Magazin.query.filter_by(user_id=current_user.id).all()
 
@@ -350,13 +412,13 @@ def category_list():
     return render_template('category_list.html', data=items)
 
 
-# страница заказов
-@app.route('/orders')
-@login_required
-def orders():
-    items = Zakaz.query.order_by(Zakaz.id).all()
-    order_status = OrderStatus.query.order_by(OrderStatus.id).all()
-    return render_template('orders.html', data=items, order_status=order_status)
+# # страница заказов
+# @app.route('/orders')
+# @login_required
+# def orders():
+#     items = Zakaz.query.order_by(Zakaz.id).all()
+#     order_status = OrderStatus.query.order_by(OrderStatus.id).all()
+#     return render_template('orders.html', data=items, order_status=order_status)
 
 
 # адрес для ajax запроса изменения пользователя
